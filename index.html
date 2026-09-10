@@ -184,11 +184,11 @@
   .shop-item .lt small{display:block;font-size:9px;color:var(--sub);font-weight:400;}
 
   /* ============ 云同步 ============ */
-  #sync-sheet{display:none;position:fixed;inset:0;z-index:1000;background:rgba(28,27,24,.4);backdrop-filter:blur(3px);}
-  #sync-sheet .box{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(460px,100%);
+  #sync-sheet,#plan-sheet{display:none;position:fixed;inset:0;z-index:1000;background:rgba(28,27,24,.4);backdrop-filter:blur(3px);}
+  #sync-sheet .box,#plan-sheet .box{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(460px,100%);
     background:var(--paper);border-radius:24px 24px 0 0;padding:22px 20px calc(env(safe-area-inset-bottom) + 24px);
     max-height:82vh;overflow-y:auto;animation:up .22s ease;}
-  @media(min-width:700px){ #sync-sheet .box{bottom:auto;top:50%;transform:translate(-50%,-50%);
+  @media(min-width:700px){ #sync-sheet .box,#plan-sheet .box{bottom:auto;top:50%;transform:translate(-50%,-50%);
     border-radius:24px;animation:pop .18s ease;} }
   @keyframes up{from{transform:translate(-50%,40px);opacity:0;}to{transform:translate(-50%,0);opacity:1;}}
   .sheet-head{display:flex;align-items:center;margin-bottom:16px;}
@@ -211,6 +211,58 @@
   .btn.dang{background:var(--card);color:var(--verm);border:1px solid #f0d5cd;}
   .code-show{font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:700;text-align:center;
     letter-spacing:3px;background:#f1eee6;border-radius:14px;padding:14px;margin-bottom:10px;}
+
+  /* ============ 当日迷你地图 ============ */
+  .day-map{height:210px;border-radius:14px;margin:8px 2px 10px;border:1px solid var(--line);
+    display:none;overflow:hidden;z-index:0;background:#eae7df;}
+  .day-map.open{display:block;animation:pop .18s ease;}
+  .map-toggle,.day-tip{border:none;background:transparent;font-size:12px;cursor:pointer;
+    padding:5px 7px;border-radius:8px;flex:none;}
+  .map-toggle:hover,.day-tip:hover{background:#efece4;}
+  .map-toggle.on{background:#fbeae5;}
+  .stopnum{display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;
+    background:var(--c,#1c1b18);color:#fff;font-size:11px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+
+  /* ============ 地图页日程浮层 ============ */
+  #map-daybar{position:absolute;z-index:600;left:12px;right:12px;
+    bottom:calc(env(safe-area-inset-bottom) + 76px);display:flex;flex-direction:column;gap:8px;}
+  #map-chips{display:flex;gap:6px;overflow-x:auto;padding:2px;scrollbar-width:none;}
+  #map-chips::-webkit-scrollbar{display:none;}
+  #map-chips button{flex:none;border:1px solid var(--line);background:rgba(255,253,249,.95);
+    border-radius:99px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--ink);
+    cursor:pointer;box-shadow:var(--shadow);}
+  #map-chips button.active{background:var(--ink);color:#f7f5f0;border-color:var(--ink);}
+  #map-daylist{background:rgba(255,253,249,.96);border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow);padding:10px 6px 6px;max-height:36vh;overflow-y:auto;backdrop-filter:blur(8px);}
+  #map-daylist .ml-head{display:flex;align-items:baseline;padding:0 10px 6px;gap:8px;}
+  #map-daylist .ml-head b{font-family:var(--serif);font-size:14px;}
+  #map-daylist .ml-head span{font-size:11px;color:var(--sub);}
+  #map-daylist .ml-stop{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;
+    cursor:pointer;font-size:13px;}
+  #map-daylist .ml-stop:hover{background:#f2efe8;}
+  #map-daylist .ml-stop .n{flex:none;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px;
+    font-weight:700;display:flex;align-items:center;justify-content:center;}
+  #map-daylist .ml-stop .t{color:var(--sub);font-size:11.5px;min-width:44px;flex:none;font-variant-numeric:tabular-nums;}
+  @media (min-width:900px){ #map-daybar{bottom:calc(env(safe-area-inset-bottom) + 16px);} }
+
+  /* ============ 行程建议 ============ */
+  .plans-tip{background:#eceadf;border-radius:14px;padding:12px 14px;font-size:12px;color:var(--sub);
+    line-height:1.8;margin-bottom:12px;}
+  .plans-tip b{color:var(--ink);font-family:var(--serif);font-size:13.5px;}
+  .plan-opt{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;}
+  .plan-opt .po-head{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
+  .plan-opt .po-badge{font-size:11px;font-weight:800;color:#fff;background:var(--verm);border-radius:7px;
+    padding:2px 8px;flex:none;}
+  .plan-opt .po-title{font-family:var(--serif);font-size:15.5px;font-weight:700;flex:1;}
+  .plan-opt .po-desc{font-size:12px;color:var(--sub);line-height:1.65;margin-bottom:8px;}
+  .plan-opt .po-items{font-size:12.5px;line-height:2;color:#4c4a44;margin-bottom:10px;}
+  .plan-opt .po-items .tt{color:var(--sub);display:inline-block;min-width:46px;font-variant-numeric:tabular-nums;}
+  .plan-opt .po-btns{display:flex;gap:8px;}
+  .plan-opt .po-btns button{flex:1;border:1px solid var(--line);background:var(--paper);border-radius:10px;
+    padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink);}
+  .plan-opt .po-btns button.primary{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .plan-opt .po-btns button:hover{border-color:var(--ink);}
+  .plan-opt .po-btns button.danger{flex:none;width:46px;color:var(--verm);border-color:#f0d5cd;}
 
   /* ============ 底部导航 ============ */
   #bottomnav{display:flex;position:fixed;left:50%;transform:translateX(-50%);
@@ -250,7 +302,7 @@
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(214,69,44,.5);}100%{box-shadow:0 0 0 18px rgba(214,69,44,0);}}
 
   @media print{
-    header,#bottomnav,#right,#add-day,.tools,.more,.del-day,.menu-only{display:none !important;}
+    header,#bottomnav,#right,#add-day,.tools,.more,.del-day,.menu-only,#map-daybar,.day-map,#plan-sheet,.map-toggle,.day-tip{display:none !important;}
     #view-plan{display:flex !important;width:100%;max-width:none;overflow:visible;}
     body,main{display:block;background:#fff;}
     .items{break-inside:avoid;}
@@ -260,7 +312,7 @@
 <body>
 
 <header>
-  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v4.1</span></div>
+  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v5.0</span></div>
   <span class="spacer"></span>
   <span class="chip" id="countdown"></span>
   <button class="iconbtn" id="btn-sync" title="云同步">☁️<span class="dot" id="sync-dot"></span></button>
@@ -294,6 +346,7 @@
     <!-- 地图 -->
     <section class="view on" id="view-map">
       <div id="map"></div><div id="legend"></div>
+      <div id="map-daybar"><div id="map-chips"></div><div id="map-daylist"></div></div>
     </section>
     <!-- 行李 -->
     <section class="view" id="view-pack">
@@ -376,6 +429,16 @@
   </div>
 </div>
 
+<!-- 行程建议 -->
+<div id="plan-sheet">
+  <div class="box">
+    <div class="sheet-head"><h3>💡 行程建议</h3><span class="spacer"></span>
+      <button id="plan-close">✕</button></div>
+    <div id="plan-body"></div>
+    <button class="btn sec" id="plan-save" style="width:100%;margin-top:2px;">💾 把当天当前安排存为「我的方案」</button>
+  </div>
+</div>
+
 <nav id="bottomnav">
   <button data-view="plan" class="active"><span class="ic">📋</span>行程</button>
   <button data-view="map"><span class="ic">🗺️</span>地图</button>
@@ -398,6 +461,98 @@ const PLACES = {
   disneysea:   {name:"迪士尼海洋",          lat:35.6267, lng:139.8872},
   shinagawa:   {name:"品川/滨松町",         lat:35.6284, lng:139.7387},
   shibuya:     {name:"涩谷·Shibuya Sky",   lat:35.6580, lng:139.7016},
+  harajuku:    {name:"明治神宫·原宿",       lat:35.6702, lng:139.7016},
+  tsukiji:     {name:"筑地场外市场",        lat:35.6654, lng:139.7707},
+  ginza:       {name:"银座",                lat:35.6717, lng:139.7650},
+  ueno:        {name:"上野·阿美横町",       lat:35.7156, lng:139.7745},
+  odaiba:      {name:"台场",                lat:35.6297, lng:139.7756},
+};
+
+/* ================= 方案建议库（Plan B/C 备选） ================= */
+const PLANS={
+  0:[ // 9/22 抵达+演唱会①
+    {badge:"B",title:"早到特攻版",desc:"入境顺利、想多排队买周边时选这个：先在羽田把伴手礼买了，进城更从容。",items:[
+      {time:"12:30",name:"抵达羽田，入境取行李",note:"目标 13:30 前出关",place:"haneda"},
+      {time:"13:40",name:"羽田逛一番街",note:"伴手礼/哆啦A梦官方店，先买一部分",place:"haneda"},
+      {time:"14:20",name:"单轨→滨松町→山手线→新宿",note:"",place:null},
+      {time:"15:10",name:"酒店寄存/入住",note:"入住 15:00 起",place:"shinjuku"},
+      {time:"15:40",name:"直奔代代木排周边",note:"比标准版多 20 分钟排队时间",place:"yoyogi"},
+      {time:"晚间",name:"演唱会①",note:"散场山手线回新宿",place:null},
+    ]},
+    {badge:"C",title:"晚点保险版",desc:"航班延误 / 入境排长队时用：砍掉一切顺路活动，保住排队周边的时间。",items:[
+      {time:"12:30",name:"抵达羽田，入境取行李",note:"",place:"haneda"},
+      {time:"13:45",name:"直奔新宿酒店寄存",note:"不顺路逛街",place:"shinjuku"},
+      {time:"15:00",name:"代代木排队周边",note:"买不到的记下来，明天提前来补",place:"yoyogi"},
+      {time:"晚间",name:"演唱会①",note:"散场山手线回新宿",place:null},
+    ]},
+  ],
+  1:[ // 9/23 新宿+演唱会②
+    {badge:"B",title:"明治神宫·原宿版",desc:"补上经典打卡点，代代木就在旁边，动线零浪费。",items:[
+      {time:"09:30",name:"明治神宫",note:"新宿→原宿 2 站，参道很出片",place:"harajuku"},
+      {time:"11:30",name:"表参道·竹下通",note:"可丽饼 + 午餐",place:"harajuku"},
+      {time:"13:30",name:"回酒店休息",note:"",place:"shinjuku"},
+      {time:"15:00",name:"代代木排队补货",note:"昨天没买到的今天补",place:"yoyogi"},
+      {time:"晚间",name:"演唱会②",note:"",place:null},
+    ]},
+    {badge:"C",title:"室内省力版",desc:"下雨或前一晚太累时：全程新宿圈内，步行可达。",items:[
+      {time:"10:00",name:"都厅展望台",note:"免费，晴天能看富士山",place:"shinjukuArea"},
+      {time:"11:30",name:"新宿午餐",note:"思出横丁",place:"shinjukuArea"},
+      {time:"13:00",name:"友都八喜·BIC CAMERA",note:"电器/药妆一次买齐",place:"shinjukuArea"},
+      {time:"15:00",name:"酒店休息后前往代代木",note:"",place:"yoyogi"},
+      {time:"晚间",name:"演唱会②",note:"",place:null},
+    ]},
+  ],
+  2:[ // 9/24 浅草→秋叶原→新浦安
+    {badge:"B",title:"筑地·银座版",desc:"吃货向：海鲜早餐开局，秋叶原压缩到 2 小时。",items:[
+      {time:"08:00",name:"退房，行李宅急便寄新浦安",note:"10 点前交件当天到",place:"shinjuku"},
+      {time:"09:00",name:"筑地场外市场早餐",note:"海胆饭/玉子烧，大江户线直达",place:"tsukiji"},
+      {time:"11:30",name:"银座逛街",note:"优衣库旗舰/伊东屋/无印",place:"ginza"},
+      {time:"14:00",name:"秋叶原",note:"银座→秋叶原 山手线 5 分钟",place:"akihabara"},
+      {time:"17:30",name:"→东京站→京叶线→新浦安入住",note:"",place:"shinurayasu"},
+    ]},
+    {badge:"C",title:"上野·阿美横町版",desc:"市井烟火气 + 性价比，适合想淘货的。",items:[
+      {time:"08:00",name:"退房，行李宅急便寄新浦安",note:"",place:"shinjuku"},
+      {time:"09:00",name:"上野公园·阿美横町",note:"山手线直达，一路吃过去",place:"ueno"},
+      {time:"12:30",name:"午餐：拉面/鳗鱼饭",note:"",place:"ueno"},
+      {time:"14:00",name:"秋叶原",note:"上野→秋叶原 山手线 4 分钟",place:"akihabara"},
+      {time:"17:30",name:"→新浦安入住",note:"",place:"shinurayasu"},
+    ]},
+  ],
+  3:[ // 9/25 迪士尼海洋
+    {badge:"B",title:"悠闲表演版",desc:"不冲队不刷项目，主打氛围：表演、巡游、美食拍照。",items:[
+      {time:"08:30",name:"出发",note:"避开最挤的一波",place:"shinurayasu"},
+      {time:"09:30",name:"入园",note:"先在 App 约表演入场券",place:"disneysea"},
+      {time:"10:30",name:"地中海港湾 表演/拍照",note:"爆米花桶收藏党必逛",place:"disneysea"},
+      {time:"12:00",name:"园区午餐",note:"",place:"disneysea"},
+      {time:"下午",name:"表演/巡游二刷",note:"",place:"disneysea"},
+      {time:"20:30",name:"出园回酒店",note:"",place:"shinagawa"},
+    ]},
+    {badge:"C",title:"雨天预案",desc:"9 月多雨：室内项目优先，户外表演可能取消。",items:[
+      {time:"07:30",name:"出发",note:"带伞，穿防水鞋",place:"shinurayasu"},
+      {time:"08:30",name:"入园直奔室内项目",note:"惊魂古塔/印第安纳琼斯/地心探险",place:"disneysea"},
+      {time:"中午",name:"餐厅避雨 + 长休",note:"热门餐厅 App 提前排队",place:"disneysea"},
+      {time:"下午",name:"商店街 + 室内剧场",note:"买周边的好时机（队伍短）",place:"disneysea"},
+      {time:"20:00",name:"出园→品川/滨松町入住",note:"",place:"shinagawa"},
+    ]},
+  ],
+  4:[ // 9/26 涩谷→羽田
+    {badge:"B",title:"台场版",desc:"动漫迷补充选项：独角兽高达立像 + teamLab，傍晚再回程。",items:[
+      {time:"09:30",name:"退房寄存行李",note:"",place:"shinagawa"},
+      {time:"10:30",name:"台场：独角兽高达·DiverCity",note:"海鸥线到台场",place:"odaiba"},
+      {time:"12:30",name:"台场午餐",note:"",place:"odaiba"},
+      {time:"14:30",name:"丰洲 teamLab Planets（可选）",note:"需提前订票；不去则继续逛台场",place:"odaiba"},
+      {time:"17:00",name:"回酒店取行李",note:"",place:"shinagawa"},
+      {time:"19:15",name:"京急线→羽田",note:"",place:"haneda"},
+      {time:"22:30",name:"✈️ 起飞回上海",note:"",place:null},
+    ]},
+    {badge:"C",title:"从容机场版",desc:"逛累了？直接把时间留给羽田：机场免税店其实很好逛。",items:[
+      {time:"10:00",name:"睡到自然醒，退房寄存",note:"",place:"shinagawa"},
+      {time:"11:30",name:"品川周边午餐",note:"",place:"shinagawa"},
+      {time:"13:30",name:"提前进羽田",note:"京急线直达",place:"haneda"},
+      {time:"14:30",name:"机场免税店慢慢逛",note:"伴手礼最后补货，看飞机",place:"haneda"},
+      {time:"22:30",name:"✈️ 起飞回上海",note:"",place:null},
+    ]},
+  ],
 };
 
 /* ================= 默认数据 ================= */
@@ -487,6 +642,7 @@ try{
   if(!Array.isArray(S.shopping)) S.shopping=JSON.parse(JSON.stringify(DEFAULT_SHOPPING));
 }catch(e){ S=JSON.parse(JSON.stringify(DEFAULT_STATE)); }
 if(typeof S.updatedAt!=="number") S.updatedAt=0;
+if(!Array.isArray(S.myPlans)) S.myPlans=[];
 
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const colorOf=i=>DAY_HEX[i%DAY_HEX.length];
@@ -624,6 +780,161 @@ function focusPlace(key,itemEl){
   }
 }
 
+/* ================= 地图页：当天日程浮层 ================= */
+let mapDay=0;
+function renderMapDay(){
+  const chips=document.getElementById('map-chips'), list=document.getElementById('map-daylist');
+  if(!chips||!list) return;
+  if(mapDay>=S.days.length) mapDay=0;
+  chips.innerHTML=S.days.map((d,i)=>
+    `<button class="${i===mapDay?'active':''}" data-i="${i}">Day ${i+1} · ${esc(d.date)}</button>`).join('');
+  chips.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{mapDay=+b.dataset.i;renderMapDay();}));
+  const d=S.days[mapDay];
+  if(!d){ list.style.display='none'; return; } list.style.display='block';
+  const stops=[];
+  d.items.forEach(it=>{
+    if(!it.place||!PLACES[it.place]) return;
+    if(stops.length&&stops[stops.length-1].key===it.place) return;
+    stops.push({key:it.place,time:it.time});
+  });
+  list.innerHTML=`<div class="ml-head"><b>Day ${mapDay+1} · ${esc(d.title)}</b><span>${stops.length} 个地点</span></div>`+
+    (stops.length?stops.map((s,i)=>
+      `<div class="ml-stop" data-k="${s.key}"><span class="n" style="background:${colorOf(mapDay)}">${i+1}</span><span class="t">${esc(s.time)}</span><span>${esc(PLACES[s.key].name)}</span></div>`
+    ).join(''):'<div class="ml-stop" style="color:#a8a396;cursor:default">这一天还没标注地点</div>');
+  list.querySelectorAll('.ml-stop[data-k]').forEach(el2=>el2.addEventListener('click',()=>{
+    const p=PLACES[el2.dataset.k];
+    if(!mapOK) return;
+    map.flyTo([p.lat,p.lng],14,{duration:.6});
+    if(markers[el2.dataset.k]){
+      markers[el2.dataset.k].openPopup();
+      const pin=document.getElementById('pin-'+el2.dataset.k);
+      if(pin){pin.classList.remove('pulse');void pin.offsetWidth;pin.classList.add('pulse');}
+    }
+  }));
+}
+
+/* ================= 当日迷你地图 ================= */
+const minis={}; let miniOpen=new Set();
+function ensureMiniMap(di){
+  const host=document.getElementById('day-map-'+di);
+  if(!host) return;
+  if(minis[di]){ minis[di].invalidateSize(); return; }
+  if(!mapOK){ host.innerHTML='<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#a8a396;font-size:12px">地图组件不可用（网络原因）</div>'; return; }
+  const m=L.map(host,{attributionControl:false,zoomControl:false,scrollWheelZoom:false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(m);
+  const pts=[]; let n=0;
+  S.days[di].items.forEach(it=>{
+    if(!it.place||!PLACES[it.place]) return;
+    const p=PLACES[it.place];
+    if(pts.length&&pts[pts.length-1][0]===p.lat&&pts[pts.length-1][1]===p.lng) return;
+    n++;
+    L.marker([p.lat,p.lng],{icon:L.divIcon({className:'',iconSize:[20,20],
+      html:`<span class="stopnum" style="--c:${colorOf(di)}">${n}</span>`})})
+      .addTo(m).bindPopup(`<b>${p.name}</b>`);
+    pts.push([p.lat,p.lng]);
+  });
+  if(pts.length>1) L.polyline(pts,{color:colorOf(di),weight:2,opacity:.7,dashArray:'2 7',lineCap:'round'}).addTo(m);
+  if(pts.length===1) m.setView(pts[0],14);
+  else if(pts.length) m.fitBounds(pts,{padding:[26,26]});
+  else m.setView([35.68,139.76],12);
+  minis[di]=m;
+  setTimeout(()=>m.invalidateSize(),100);
+}
+function openItemPlace(di,it,el){
+  const isDesk=window.matchMedia('(min-width:900px)').matches;
+  if(isDesk&&mapOK){ focusPlace(it.place, el); return; }
+  if(it.place&&PLACES[it.place]){
+    miniOpen.add(di);
+    const dm=document.getElementById('day-map-'+di);
+    if(dm&&!dm.classList.contains('open')) dm.classList.add('open');
+    const tg=document.querySelector(`.map-toggle[data-di="${di}"]`);
+    if(tg) tg.classList.add('on');
+    ensureMiniMap(di);
+    const m=minis[di];
+    if(m){
+      const p=PLACES[it.place];
+      m.flyTo([p.lat,p.lng],14,{duration:.5});
+      m.eachLayer(l=>{ if(l.getPopup&&l.getPopup()&&l.getPopup().getContent().includes(p.name)) l.openPopup(); });
+    }
+  }else if(el){
+    el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),1300);
+  }
+}
+
+/* ================= 行程建议面板 ================= */
+let planSheetDay=-1;
+function dayTips(di){
+  const d=S.days[di], tips=[];
+  const n=d.items.length, doneN=d.items.filter(it=>it.done).length;
+  const noPlace=d.items.filter(it=>!it.place).length;
+  if(n>=8) tips.push(`当天有 ${n} 项，安排偏满，建议删减或把购物类挪去别的时间`);
+  else if(n<=3&&n>0) tips.push(`当天只有 ${n} 项，比较宽松，可以加些机动安排`);
+  if(noPlace>0) tips.push(`${noPlace} 项没标注地点，点条目右下「＋地点」后地图路线更完整`);
+  if(n>0&&doneN===n) tips.push('当天已全部完成 ✅');
+  if(!tips.length) tips.push('节奏不错，保持～');
+  return tips;
+}
+function openPlanSheet(di){
+  planSheetDay=di;
+  renderPlanSheet();
+  document.getElementById('plan-sheet').style.display='block';
+}
+function renderPlanSheet(){
+  const day=S.days[planSheetDay];
+  if(!day) return;
+  const box=document.getElementById('plan-body');
+  const tips=dayTips(planSheetDay).map(t=>`<div>· ${t}</div>`).join('');
+  const opts=(PLANS[planSheetDay]||[]).map((p,i)=>`
+    <div class="plan-opt">
+      <div class="po-head"><span class="po-badge">方案 ${p.badge}</span><span class="po-title">${esc(p.title)}</span></div>
+      <div class="po-desc">${esc(p.desc)}</div>
+      <div class="po-items">${p.items.map(it=>`<div><span class="tt">${esc(it.time)}</span>${esc(it.name)}</div>`).join('')}</div>
+      <div class="po-btns">
+        <button class="primary" data-act="replace" data-i="${i}">✓ 替换当天</button>
+        <button data-act="append" data-i="${i}">＋ 追加到当天</button>
+      </div>
+    </div>`).join('')||'<div class="plans-tip">这一天暂无预设备选方案，可以存一个自己的～</div>';
+  const mine=(S.myPlans||[]).map((p,i)=>`
+    <div class="plan-opt">
+      <div class="po-head"><span class="po-badge" style="background:#3a5fa8">存</span><span class="po-title">${esc(p.name)}</span></div>
+      <div class="po-items">${p.items.map(it=>`<div><span class="tt">${esc(it.time)}</span>${esc(it.name)}</div>`).join('')}</div>
+      <div class="po-btns">
+        <button class="primary" data-act="mreplace" data-i="${i}">✓ 替换当天</button>
+        <button data-act="mappend" data-i="${i}">＋ 追加</button>
+        <button class="danger" data-act="mdel" data-i="${i}">🗑</button>
+      </div>
+    </div>`).join('');
+  box.innerHTML=`<div class="plans-tip"><b>Day ${planSheetDay+1} · ${esc(day.title)}</b><br>${tips}</div>${opts}`+
+    (mine?`<div class="sec-label">我 的 方 案</div>${mine}`:'');
+}
+function applyPlan(p,mode){
+  const day=S.days[planSheetDay];
+  if(!day||!p) return;
+  const items=p.items.map(it=>({...it,done:false}));
+  if(mode==='replace') day.items=items; else day.items=day.items.concat(items);
+  save(); renderAll();
+  document.getElementById('plan-sheet').style.display='none';
+}
+document.getElementById('plan-body').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-act]'); if(!b) return;
+  const act=b.dataset.act, i=+b.dataset.i;
+  if(act==='replace') applyPlan(PLANS[planSheetDay][i],'replace');
+  else if(act==='append') applyPlan(PLANS[planSheetDay][i],'append');
+  else if(act==='mreplace') applyPlan(S.myPlans[i],'replace');
+  else if(act==='mappend') applyPlan(S.myPlans[i],'append');
+  else if(act==='mdel'){ if(confirm('删除该方案？')){S.myPlans.splice(i,1);save();renderPlanSheet();} }
+});
+document.getElementById('plan-close').addEventListener('click',()=>document.getElementById('plan-sheet').style.display='none');
+document.getElementById('plan-sheet').addEventListener('click',e=>{if(e.target.id==='plan-sheet')e.target.style.display='none';});
+document.getElementById('plan-save').addEventListener('click',()=>{
+  const day=S.days[planSheetDay];
+  if(!day||!day.items.length){ alert('当天还没有安排'); return; }
+  const name=prompt('方案名称：', day.title+'（备份）');
+  if(!name) return;
+  S.myPlans.push({name:name.trim(),items:JSON.parse(JSON.stringify(day.items))});
+  save(); renderPlanSheet();
+});
+
 /* ================= 视图切换 ================= */
 let curView="plan", rightView="map";
 function setView(v){
@@ -662,6 +973,7 @@ function moveToDay(di,ii,tj){
 }
 
 function render(){
+  Object.keys(minis).forEach(k=>{try{minis[k].remove();}catch(e){} delete minis[k];});
   timeline.innerHTML='';
   S.days.forEach((day,di)=>{
     const sec=document.createElement('div'); sec.className='day';
@@ -674,16 +986,26 @@ function render(){
           <div class="d" contenteditable spellcheck="false">${esc(day.date)}</div>
         </div>
         <span class="prog">${done}/${day.items.length}</span>
+        <button class="map-toggle" data-di="${di}" title="当天路线图">🗺️</button>
+        <button class="day-tip" data-di="${di}" title="行程建议">💡</button>
         <button class="del-day" title="删除这一天">✕</button>
       </div>
       <div class="progress"><i style="width:${day.items.length?done/day.items.length*100:0}%"></i></div>
-      <div class="items" data-day="${di}"></div>`;
+      <div class="items" data-day="${di}"></div>
+      <div class="day-map" id="day-map-${di}"></div>`;
     sec.querySelector('.t').addEventListener('blur',e=>{day.title=e.target.textContent.trim();save();});
     sec.querySelector('.d').addEventListener('blur',e=>{day.date=e.target.textContent.trim();save();renderLegend();});
     sec.querySelector('.del-day').addEventListener('click',()=>{
       if(confirm(`删除 Day ${di+1}（${day.title}）及全部活动？`)){
-        S.days.splice(di,1); dayOn.splice(di,1); save(); renderAll();
+        S.days.splice(di,1); dayOn.splice(di,1); miniOpen.delete(di); save(); renderAll();
       }
+    });
+    sec.querySelector('.day-tip').addEventListener('click',()=>openPlanSheet(di));
+    sec.querySelector('.map-toggle').addEventListener('click',()=>{
+      const dm=document.getElementById('day-map-'+di);
+      const open=dm.classList.toggle('open');
+      sec.querySelector('.map-toggle').classList.toggle('on',open);
+      if(open){ miniOpen.add(di); ensureMiniMap(di); } else miniOpen.delete(di);
     });
 
     const list=sec.querySelector('.items');
@@ -724,7 +1046,7 @@ function render(){
       });
       el.addEventListener('click',e=>{
         if(e.target.isContentEditable||e.target.closest('button')||e.target.classList.contains('chk'))return;
-        focusPlace(it.place, el);
+        openItemPlace(di, it, el);
       });
       el.querySelectorAll('[contenteditable]').forEach(c=>{
         c.addEventListener('mousedown',()=>{el.draggable=false;});
@@ -778,6 +1100,12 @@ function render(){
     dayOn.push(true); save(); renderAll();
   });
   timeline.appendChild(addDay);
+  miniOpen.forEach(di=>{
+    const tg=document.querySelector(`.map-toggle[data-di="${di}"]`);
+    if(tg) tg.classList.add('on');
+    ensureMiniMap(di);
+  });
+  renderMapDay();
   renderLegend();
   refreshMarkers();
   renderPack(); renderShop(); renderExp();
