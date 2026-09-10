@@ -4,201 +4,255 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#6366f1">
-<title>东京行程 · 9.22–9.26</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f7f5f0">
+<title>東京之旅 · 9.22–9.26</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{
-    --bg:#f6f6f9; --card:#ffffff; --ink:#1e2130; --sub:#8a8fa3; --line:#ececf2;
-    --accent:#6366f1; --accent2:#8b5cf6; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444;
-    --shadow:0 1px 3px rgba(30,33,48,.08),0 4px 14px rgba(30,33,48,.05);
+    --paper:#f7f5f0; --card:#fffdf9; --ink:#1c1b18; --sub:#918d84; --line:#e7e3da; --line2:#d8d3c8;
+    --verm:#d6452c; --verm-dark:#b93a22; --ok:#3a7d54;
+    --serif:"Songti SC","Noto Serif SC","STSong",Georgia,serif;
+    --shadow:0 1px 2px rgba(28,27,24,.04),0 6px 18px rgba(28,27,24,.05);
+    --day:#e7e3da;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
-  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--paper);color:var(--ink);
        display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
 
-  /* ---------- 顶栏 ---------- */
-  header{padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;
-    background:linear-gradient(135deg,#6366f1,#8b5cf6 60%,#a855f7);color:#fff;
-    display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:relative;z-index:900;}
-  header h1{font-size:18px;font-weight:800;letter-spacing:.5px;}
-  #countdown{font-size:12px;background:rgba(255,255,255,.22);backdrop-filter:blur(4px);
-    border-radius:20px;padding:4px 11px;font-weight:600;white-space:nowrap;}
+  /* ============ 顶栏 ============ */
+  header{position:sticky;top:0;z-index:900;background:rgba(247,245,240,.88);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 12px) 18px 12px;
+    display:flex;align-items:center;gap:12px;}
+  .brand{display:flex;flex-direction:column;line-height:1.15;}
+  .brand b{font-family:var(--serif);font-size:19px;font-weight:700;letter-spacing:1px;}
+  .brand span{font-size:11px;color:var(--sub);letter-spacing:.5px;margin-top:2px;}
   header .spacer{flex:1;}
-  .hbtn{border:none;background:rgba(255,255,255,.2);color:#fff;border-radius:10px;
-    padding:7px 11px;font-size:12px;cursor:pointer;font-weight:600;position:relative;}
-  .hbtn:hover{background:rgba(255,255,255,.32);}
-  .hbtn .dot{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;
-    background:#9ca3af;border:1.5px solid #fff;}
-  .hbtn .dot.on{background:#34d399;}
-  .hbtn .dot.err{background:#fbbf24;}
-  .hbtn.plain{display:none;}
-  #menu{position:absolute;top:calc(env(safe-area-inset-top) + 52px);right:12px;background:#fff;color:var(--ink);
-    border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.18);padding:6px;display:none;min-width:150px;z-index:901;}
-  #menu.open{display:block;}
-  #menu button{display:block;width:100%;text-align:left;border:none;background:none;padding:10px 14px;
-    font-size:14px;border-radius:9px;cursor:pointer;}
-  #menu button:hover{background:#f3f3f8;}
+  .chip{font-size:11.5px;font-weight:600;color:var(--ink);background:var(--card);border:1px solid var(--line);
+    border-radius:99px;padding:5px 11px;white-space:nowrap;}
+  .iconbtn{width:36px;height:36px;border-radius:12px;border:1px solid var(--line);background:var(--card);
+    font-size:15px;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;color:var(--ink);}
+  .iconbtn:hover{border-color:var(--line2);background:#faf8f3;}
+  .iconbtn .dot{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;
+    background:#c9c4b8;border:2px solid var(--paper);}
+  .iconbtn .dot.on{background:var(--ok);}
+  .iconbtn .dot.err{background:var(--verm);}
+  #menu{position:absolute;top:calc(env(safe-area-inset-top) + 54px);right:14px;background:var(--card);color:var(--ink);
+    border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 44px rgba(28,27,24,.16);
+    padding:6px;display:none;min-width:168px;z-index:901;}
+  #menu.open{display:block;animation:pop .14s ease;}
+  @keyframes pop{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+  #menu button{display:block;width:100%;text-align:left;border:none;background:none;padding:11px 14px;
+    font-size:14px;border-radius:10px;cursor:pointer;}
+  #menu button:hover{background:#f2efe8;}
 
-  /* ---------- 主布局 ---------- */
+  /* ============ 主布局 ============ */
   main{flex:1;display:flex;flex-direction:column;min-height:0;}
   .view{display:none;flex:1;min-height:0;position:relative;flex-direction:column;}
   .view.on{display:flex;}
-  #view-plan{overflow-y:auto;padding:14px 12px calc(env(safe-area-inset-bottom) + 80px);}
   #right{display:contents;}
+  .scroll{overflow-y:auto;padding:18px 16px calc(env(safe-area-inset-bottom) + 104px);}
 
-  /* ---------- 行程卡片 ---------- */
-  .day{margin-bottom:16px;}
-  .day-head{display:flex;align-items:center;gap:9px;margin:0 2px 8px;}
-  .badge{width:26px;height:26px;border-radius:9px;color:#fff;font-size:13px;font-weight:800;
-    display:flex;align-items:center;justify-content:center;flex:none;box-shadow:var(--shadow);}
-  .day-head .title{font-weight:700;font-size:15px;outline:none;border-radius:6px;padding:1px 4px;min-width:20px;}
-  .day-head .title:focus,.day-head .date:focus{background:#eef0ff;box-shadow:0 0 0 2px #c7cbff;}
-  .day-head .date{font-size:12px;color:var(--sub);outline:none;border-radius:6px;padding:1px 4px;}
-  .day-head .prog{margin-left:auto;font-size:11px;color:var(--sub);background:#fff;border:1px solid var(--line);
-    border-radius:12px;padding:3px 9px;white-space:nowrap;font-variant-numeric:tabular-nums;}
-  .day-head .del-day{border:none;background:transparent;color:#c4c4c4;cursor:pointer;font-size:14px;
+  .sec-label{font-size:11px;font-weight:700;letter-spacing:2.5px;color:var(--sub);margin:6px 2px 10px;}
+
+  /* ============ 行程 ============ */
+  .day{margin-bottom:26px;}
+  .day-head{display:flex;align-items:baseline;gap:12px;padding:0 2px 10px;}
+  .day-num{font-family:var(--serif);font-size:34px;font-weight:400;color:var(--ink);line-height:1;min-width:52px;}
+  .day-num small{font-size:13px;color:var(--sub);display:block;font-family:-apple-system,sans-serif;
+    font-weight:600;letter-spacing:1px;margin-top:3px;}
+  .day-title{flex:1;min-width:0;}
+  .day-title .t{font-family:var(--serif);font-size:17px;font-weight:700;outline:none;border-radius:6px;
+    padding:1px 4px;line-height:1.3;}
+  .day-title .t:focus,.day-title .d:focus{background:#efece4;box-shadow:0 0 0 2px var(--line2);}
+  .day-title .d{font-size:12px;color:var(--sub);outline:none;border-radius:6px;padding:1px 4px;margin-top:2px;}
+  .day-head .prog{font-size:11px;color:var(--sub);white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .day-head .del-day{border:none;background:transparent;color:#c9c4b8;cursor:pointer;font-size:14px;
     padding:3px 6px;border-radius:7px;}
-  .day-head .del-day:hover{color:var(--bad);background:#fee;}
-  .progress{height:4px;border-radius:3px;background:#e9e9f0;overflow:hidden;margin:-4px 4px 8px;}
-  .progress i{display:block;height:100%;border-radius:3px;transition:width .3s;}
+  .day-head .del-day:hover{color:var(--verm);background:#fbeae5;}
+  .progress{height:2px;background:var(--day);border-radius:1px;margin:0 2px 10px;overflow:hidden;}
+  .progress i{display:block;height:100%;background:var(--ink);transition:width .3s;}
 
-  .items{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px;box-shadow:var(--shadow);
-    transition:border-color .15s,box-shadow .15s;}
-  .items.drop-target{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.18);}
-  .item{display:flex;align-items:center;gap:9px;padding:10px 8px 10px 10px;border-radius:12px;background:#fff;
+  .items{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:4px;box-shadow:var(--shadow);
+    transition:border-color .15s;}
+  .items.drop-target{border-color:var(--verm);}
+  .item{display:flex;align-items:center;gap:11px;padding:11px 9px 11px 12px;border-radius:14px;background:transparent;
     border:1px solid transparent;cursor:grab;position:relative;}
-  .item:hover{border-color:var(--line);background:#fbfbfd;}
-  .item.dragging{opacity:.35;cursor:grabbing;}
-  .item.done .name,.item.done .note{text-decoration:line-through;color:#b8bcca;}
-  .item .chk{width:18px;height:18px;accent-color:var(--ok);cursor:pointer;flex:none;}
-  .item .time{font-size:11.5px;font-weight:700;color:var(--accent);background:#eef0ff;border-radius:7px;
-    padding:3px 7px;min-width:48px;text-align:center;flex:none;font-variant-numeric:tabular-nums;outline:none;}
-  .item .time:focus{background:#e2e5ff;box-shadow:0 0 0 2px #c7cbff;}
-  .item .bar{width:3px;height:30px;border-radius:2px;flex:none;}
-  .item .txt{flex:1;min-width:0;}
-  .item .name{font-size:14px;font-weight:600;line-height:1.35;outline:none;border-radius:5px;padding:1px 3px;}
-  .item .name:focus,.item .note:focus{background:#eef0ff;box-shadow:0 0 0 2px #c7cbff;}
-  .item .note{font-size:11.5px;color:var(--sub);line-height:1.45;outline:none;border-radius:5px;padding:1px 3px;margin-top:1px;}
-  .item .tools{display:flex;flex-direction:column;gap:1px;flex:none;opacity:.55;}
+  .item:hover{background:#faf7f1;border-color:var(--line);}
+  .item.dragging{opacity:.3;cursor:grabbing;}
+  .item.done .name,.item.done .note{text-decoration:line-through;color:#b5b1a6;}
+  .item .chk{appearance:none;width:20px;height:20px;border:1.5px solid var(--line2);border-radius:50%;
+    cursor:pointer;flex:none;position:relative;background:var(--card);transition:all .15s;}
+  .item .chk:checked{background:var(--verm);border-color:var(--verm);}
+  .item .chk:checked::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:11px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;}
+  .item .time{font-size:12px;font-weight:600;color:var(--sub);min-width:52px;flex:none;
+    font-variant-numeric:tabular-nums;outline:none;border-radius:6px;padding:2px 3px;}
+  .item .time:focus{background:#efece4;}
+  .item .txt{flex:1;min-width:0;border-left:2px solid var(--day);padding-left:11px;}
+  .item .name{font-size:14.5px;font-weight:600;line-height:1.4;outline:none;border-radius:5px;padding:1px 3px;}
+  .item .name:focus,.item .note:focus{background:#efece4;box-shadow:0 0 0 2px var(--line2);}
+  .item .note{font-size:11.5px;color:var(--sub);line-height:1.5;outline:none;border-radius:5px;padding:1px 3px;margin-top:1px;}
+  .item .pin-tag{font-size:10.5px;color:#7d7970;background:#f1eee6;border-radius:7px;padding:3px 9px;flex:none;
+    white-space:nowrap;cursor:pointer;border:none;max-width:110px;overflow:hidden;text-overflow:ellipsis;}
+  .item .pin-tag:hover{background:#eae6db;}
+  .item select.place-pick{font-size:11px;border:1px solid var(--line);border-radius:7px;padding:3px;max-width:130px;flex:none;}
+  .item .tools{display:flex;flex-direction:column;gap:2px;flex:none;opacity:.45;}
   .item:hover .tools,.tools:active{opacity:1;}
-  .tools button{border:none;background:transparent;cursor:pointer;font-size:11px;line-height:1;
-    padding:2px 5px;border-radius:5px;color:#9aa;color:#8a8fa3;}
-  .tools button:hover{background:#eef0ff;color:var(--accent);}
-  .item .more{display:none;padding:4px 6px 6px 40px;gap:6px;flex-wrap:wrap;align-items:center;}
+  .tools button{border:none;background:transparent;cursor:pointer;font-size:10px;line-height:1;
+    padding:3px 6px;border-radius:5px;color:var(--sub);}
+  .tools button:hover{background:#efece4;color:var(--ink);}
+  .item .more{display:none;padding:6px 6px 8px 96px;gap:6px;flex-wrap:wrap;align-items:center;}
   .item.open .more{display:flex;}
   .more .lbl{font-size:11px;color:var(--sub);}
-  .more button{border:1px solid var(--line);background:#fff;border-radius:8px;font-size:11px;
-    padding:4px 9px;cursor:pointer;color:var(--ink);}
-  .more button:hover{border-color:var(--accent);color:var(--accent);}
-  .more button.danger{color:var(--bad);border-color:#fdd;}
-  .more button.danger:hover{background:#fff2f2;}
-  .item .pin-tag{font-size:10.5px;color:#555;background:#f2f2f7;border-radius:6px;padding:3px 8px;flex:none;
-    white-space:nowrap;cursor:pointer;border:none;max-width:110px;overflow:hidden;text-overflow:ellipsis;}
-  .item .pin-tag:hover{background:#e8e8f0;}
-  .item select.place-pick{font-size:11px;border:1px solid var(--line);border-radius:6px;padding:3px;max-width:130px;flex:none;}
+  .more button{border:1px solid var(--line);background:var(--card);border-radius:8px;font-size:11px;
+    padding:4px 10px;cursor:pointer;color:var(--ink);}
+  .more button:hover{border-color:var(--ink);}
+  .more button.danger{color:var(--verm);border-color:#f0d5cd;}
+  .more button.danger:hover{background:#fdf3ef;}
   .item.flash{animation:flash 1.2s ease;}
-  @keyframes flash{0%{background:#fff7cc;}100%{background:#fff;}}
-  .add-btn{width:100%;border:none;background:transparent;color:#a9adbf;font-size:13px;font-weight:600;
-    padding:11px;cursor:pointer;border-radius:12px;}
-  .add-btn:hover{background:#f5f5fa;color:var(--accent);}
-  #add-day{display:block;margin:2px auto 20px;border:1.5px dashed #d5d5e2;background:transparent;color:#8a8fa3;
-    font-size:13px;font-weight:600;padding:12px 26px;border-radius:14px;cursor:pointer;}
-  #add-day:hover{border-color:var(--accent);color:var(--accent);}
+  @keyframes flash{0%{background:#faf0d8;}100%{background:transparent;}}
+  .add-btn{width:100%;border:none;background:transparent;color:#a8a396;font-size:13px;font-weight:600;
+    padding:12px;cursor:pointer;border-radius:14px;}
+  .add-btn:hover{background:#f5f2ea;color:var(--ink);}
+  #add-day{display:block;margin:4px auto 10px;border:1.5px dashed var(--line2);background:transparent;
+    color:var(--sub);font-size:13px;font-weight:600;padding:13px 30px;border-radius:16px;cursor:pointer;}
+  #add-day:hover{border-color:var(--ink);color:var(--ink);}
 
-  /* ---------- 地图 ---------- */
+  /* ============ 地图 ============ */
   #map{position:absolute;inset:0;}
-  #legend{position:absolute;z-index:500;top:12px;right:12px;background:rgba(255,255,255,.96);
-    border:1px solid var(--line);border-radius:14px;padding:9px 13px;font-size:12px;box-shadow:var(--shadow);}
-  #legend .row{display:flex;align-items:center;gap:7px;margin:4px 0;cursor:pointer;white-space:nowrap;}
-  #legend .row.off{opacity:.35;}
-  #legend .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  #legend{position:absolute;z-index:500;top:14px;right:14px;background:rgba(255,253,249,.96);
+    border:1px solid var(--line);border-radius:16px;padding:10px 14px;font-size:12px;box-shadow:var(--shadow);}
+  #legend .row{display:flex;align-items:center;gap:8px;margin:5px 0;cursor:pointer;white-space:nowrap;}
+  #legend .row.off{opacity:.3;}
+  #legend .dot{width:8px;height:8px;border-radius:50%;flex:none;}
 
-  /* ---------- 面板（清单/记账/同步） ---------- */
-  .panel{position:absolute;inset:0;overflow-y:auto;padding:18px 16px calc(env(safe-area-inset-bottom) + 90px);}
-  .panel h3{font-size:16px;margin-bottom:3px;}
-  .panel .sub{font-size:12px;color:var(--sub);margin-bottom:14px;}
+  /* ============ 面板通用 ============ */
+  .panel{position:absolute;inset:0;overflow-y:auto;padding:18px 16px calc(env(safe-area-inset-bottom) + 108px);}
+  .panel h3{font-family:var(--serif);font-size:20px;margin-bottom:3px;}
+  .panel .sub{font-size:12px;color:var(--sub);margin-bottom:16px;}
   .addrow{display:flex;gap:8px;margin-bottom:14px;}
-  .addrow input,.addrow select{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px;
-    background:#fff;min-width:0;}
+  .addrow input,.addrow select{border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-size:14px;
+    background:var(--card);min-width:0;color:var(--ink);}
+  .addrow input:focus,.addrow select:focus{outline:none;border-color:var(--ink);}
   .addrow input[type=text]{flex:1;}
-  .addrow input[type=number]{width:88px;}
-  .addrow button{border:none;background:var(--accent);color:#fff;border-radius:12px;padding:0 18px;
+  .addrow input[type=number]{width:84px;}
+  .addrow button{border:none;background:var(--ink);color:#fff;border-radius:12px;padding:0 18px;
     font-size:14px;cursor:pointer;font-weight:600;}
-  .addrow button:hover{background:#5558e8;}
-  .rows{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px;box-shadow:var(--shadow);}
-  .row-item{display:flex;align-items:center;gap:10px;padding:11px 11px;border-radius:12px;font-size:14px;}
-  .row-item:hover{background:#fbfbfd;}
+  .rows{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:4px;box-shadow:var(--shadow);}
+  .row-item{display:flex;align-items:center;gap:11px;padding:12px 11px;border-radius:14px;font-size:14px;}
+  .row-item:hover{background:#faf7f1;}
   .row-item .grow{flex:1;min-width:0;}
-  .row-item .grow.done{text-decoration:line-through;color:#b8bcca;}
-  .row-item .amt{font-weight:800;font-variant-numeric:tabular-nums;}
-  .row-item .tag{font-size:10.5px;color:#666;background:#f2f2f7;border-radius:6px;padding:3px 8px;white-space:nowrap;}
-  .row-item .x{border:none;background:transparent;color:#c4c4c4;cursor:pointer;font-size:14px;
+  .row-item .grow.done{text-decoration:line-through;color:#b5b1a6;}
+  .row-item .amt{font-weight:700;font-variant-numeric:tabular-nums;}
+  .row-item .tag{font-size:10px;color:#7d7970;background:#f1eee6;border-radius:6px;padding:3px 8px;white-space:nowrap;}
+  .row-item .x{border:none;background:transparent;color:#c9c4b8;cursor:pointer;font-size:14px;
     padding:3px 7px;border-radius:7px;}
-  .row-item .x:hover{color:var(--bad);background:#fee;}
-  .total-bar{margin-top:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border-radius:16px;
-    padding:15px 18px;font-size:13px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);}
-  .total-bar b{font-size:21px;font-variant-numeric:tabular-nums;}
-  .mini-stats{font-size:11px;color:var(--sub);margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+  .row-item .x:hover{color:var(--verm);background:#fbeae5;}
+  .mini-stats{font-size:11px;color:var(--sub);margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end;}
 
-  /* ---------- 云同步 ---------- */
-  .sync-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;
-    margin-bottom:14px;box-shadow:var(--shadow);}
-  .sync-card h4{font-size:14px;margin-bottom:4px;}
-  .sync-card p{font-size:12px;color:var(--sub);line-height:1.6;margin-bottom:10px;}
-  .sync-card input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:9px;}
-  .sync-card .btnrow{display:flex;gap:8px;flex-wrap:wrap;}
-  .sync-card .btn{flex:1;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;
-    background:var(--accent);color:#fff;min-width:100px;}
-  .sync-card .btn.sec{background:#eef0ff;color:var(--accent);}
-  .sync-card .btn.dang{background:#fff;color:var(--bad);border:1px solid #fdd;}
-  #sync-status{font-size:12px;padding:8px 12px;border-radius:10px;background:#f2f2f7;color:var(--sub);margin-bottom:12px;}
-  #sync-status.ok{background:#e7faf1;color:#067a55;}
-  #sync-status.err{background:#fff4e0;color:#9a6700;}
-  .tokenhint{font-size:11px;color:var(--sub);margin-top:8px;line-height:1.6;}
-  .tokenhint a{color:var(--accent);}
+  .total-card{margin:0 0 14px;background:var(--ink);color:#f7f5f0;border-radius:20px;padding:18px 20px;
+    box-shadow:var(--shadow);display:flex;align-items:flex-end;justify-content:space-between;}
+  .total-card .big{font-family:var(--serif);font-size:30px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;}
+  .total-card .cap{font-size:11px;opacity:.65;letter-spacing:1px;margin-bottom:4px;}
+  .total-card .side{text-align:right;font-size:12px;opacity:.75;line-height:1.7;font-variant-numeric:tabular-nums;}
 
-  /* ---------- 底部导航（手机） ---------- */
-  #bottomnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:800;
-    background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);
-    padding-bottom:env(safe-area-inset-bottom);}
-  #bottomnav button{flex:1;border:none;background:none;padding:9px 0 7px;font-size:10.5px;color:var(--sub);
-    cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;}
-  #bottomnav button span.ic{font-size:20px;line-height:1;}
-  #bottomnav button.active{color:var(--accent);}
+  /* ============ 购物清单 ============ */
+  .shop-item{display:flex;align-items:center;gap:10px;padding:11px 9px 11px 11px;border-radius:14px;font-size:14px;}
+  .shop-item:hover{background:#faf7f1;}
+  .shop-item .chk{appearance:none;width:20px;height:20px;border:1.5px solid var(--line2);border-radius:50%;
+    cursor:pointer;flex:none;position:relative;background:var(--card);}
+  .shop-item .chk:checked{background:var(--ok);border-color:var(--ok);}
+  .shop-item .chk:checked::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:11px;
+    font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .shop-item .sname{flex:1;min-width:0;line-height:1.3;}
+  .shop-item .sname .n{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .shop-item .sname .j{font-size:10.5px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .shop-item.done .sname .n{text-decoration:line-through;color:#b5b1a6;}
+  .stepper{display:flex;align-items:center;gap:2px;flex:none;background:#f1eee6;border-radius:9px;padding:2px;}
+  .stepper button{width:24px;height:24px;border:none;background:transparent;border-radius:7px;cursor:pointer;
+    font-size:14px;color:var(--ink);line-height:1;}
+  .stepper button:hover{background:#e5e1d5;}
+  .stepper .q{min-width:22px;text-align:center;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;}
+  .shop-item .price{width:64px;flex:none;border:none;background:transparent;text-align:right;font-size:13px;
+    color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;border-bottom:1px dashed var(--line2);padding:2px 0;}
+  .shop-item .price:focus{outline:none;border-bottom-color:var(--ink);}
+  .shop-item .lt{width:74px;flex:none;text-align:right;font-weight:700;font-size:13.5px;
+    font-variant-numeric:tabular-nums;}
+  .shop-item .lt small{display:block;font-size:9px;color:var(--sub);font-weight:400;}
 
-  /* ---------- 桌面布局 ---------- */
+  /* ============ 云同步 ============ */
+  #sync-sheet{display:none;position:fixed;inset:0;z-index:1000;background:rgba(28,27,24,.4);backdrop-filter:blur(3px);}
+  #sync-sheet .box{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(460px,100%);
+    background:var(--paper);border-radius:24px 24px 0 0;padding:22px 20px calc(env(safe-area-inset-bottom) + 24px);
+    max-height:82vh;overflow-y:auto;animation:up .22s ease;}
+  @media(min-width:700px){ #sync-sheet .box{bottom:auto;top:50%;transform:translate(-50%,-50%);
+    border-radius:24px;animation:pop .18s ease;} }
+  @keyframes up{from{transform:translate(-50%,40px);opacity:0;}to{transform:translate(-50%,0);opacity:1;}}
+  .sheet-head{display:flex;align-items:center;margin-bottom:16px;}
+  .sheet-head h3{font-family:var(--serif);font-size:19px;}
+  .sheet-head .spacer{flex:1;}
+  .sheet-head button{border:none;background:#eceadf;border-radius:50%;width:30px;height:30px;font-size:14px;cursor:pointer;}
+  #sync-status{font-size:12px;padding:10px 14px;border-radius:12px;background:#eceadf;color:var(--sub);margin-bottom:14px;}
+  #sync-status.ok{background:#e5efe4;color:var(--ok);}
+  #sync-status.err{background:#fbeae5;color:var(--verm-dark);}
+  .sync-sec{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;}
+  .sync-sec h4{font-size:14px;margin-bottom:5px;}
+  .sync-sec p{font-size:12px;color:var(--sub);line-height:1.65;margin-bottom:11px;}
+  .sync-sec input{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-size:14px;
+    margin-bottom:10px;background:var(--paper);color:var(--ink);}
+  .sync-sec input:focus{outline:none;border-color:var(--ink);}
+  .btnrow{display:flex;gap:8px;}
+  .btn{flex:1;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;
+    background:var(--ink);color:#fff;}
+  .btn.sec{background:#eceadf;color:var(--ink);}
+  .btn.dang{background:var(--card);color:var(--verm);border:1px solid #f0d5cd;}
+  .code-show{font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:700;text-align:center;
+    letter-spacing:3px;background:#f1eee6;border-radius:14px;padding:14px;margin-bottom:10px;}
+
+  /* ============ 底部导航 ============ */
+  #bottomnav{display:none;position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(env(safe-area-inset-bottom) + 12px);z-index:800;
+    background:rgba(28,27,24,.92);backdrop-filter:blur(16px);border-radius:22px;
+    padding:5px;box-shadow:0 10px 34px rgba(28,27,24,.32);width:min(430px,calc(100vw - 28px));}
+  #bottomnav button{flex:1;border:none;background:transparent;padding:8px 0 6px;font-size:10px;color:#9a968c;
+    cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:600;border-radius:17px;}
+  #bottomnav button span.ic{font-size:18px;line-height:1;filter:grayscale(1) brightness(1.6);opacity:.8;}
+  #bottomnav button.active{background:#37352f;color:#f7f5f0;}
+  #bottomnav button.active span.ic{filter:none;opacity:1;}
+
+  /* ============ 桌面 ============ */
   .desktop-only{display:none;}
   @media (min-width:900px){
     main{flex-direction:row;}
-    #view-plan{width:46%;min-width:390px;max-width:560px;border-right:1px solid var(--line);
+    #view-plan{width:46%;min-width:400px;max-width:580px;border-right:1px solid var(--line);
       padding-bottom:40px;display:flex !important;}
     #right{display:flex;flex-direction:column;flex:1;min-width:0;}
     .desktop-only{display:flex;}
-    .tabs{background:var(--card);border-bottom:1px solid var(--line);}
-    .tabs button{flex:1;border:none;background:transparent;padding:12px;font-size:13px;cursor:pointer;
-      color:var(--sub);border-bottom:2px solid transparent;font-weight:600;}
-    .tabs button.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .tabs{background:var(--paper);border-bottom:1px solid var(--line);padding:8px 12px 0;gap:4px;}
+    .tabs button{border:none;background:transparent;padding:10px 16px;font-size:13px;cursor:pointer;
+      color:var(--sub);border-radius:12px 12px 0 0;font-weight:600;}
+    .tabs button.active{color:var(--ink);background:var(--card);border:1px solid var(--line);border-bottom-color:var(--card);}
     #bottomnav{display:none !important;}
-    #view-plan{padding-bottom:40px;}
+    .scroll{padding-bottom:40px;}
     .panel{padding-bottom:40px;}
-    .hbtn.plain{display:inline-block;}
     .menu-only{display:none !important;}
+    .hplain{display:inline-flex !important;}
   }
-  @media (max-width:899px){ .menu-only{display:block;} }
+  @media (max-width:899px){ .menu-only{display:flex;} .hplain{display:none !important;} }
 
   .leaflet-popup-content{font-size:13px;font-family:inherit;}
   .pin{display:block;width:14px;height:14px;border-radius:50%;background:#fff;border:3.5px solid var(--c,#888);
     box-shadow:0 1px 4px rgba(0,0,0,.3);}
   .pin.pulse{animation:pulse .9s ease 2;}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(99,102,241,.5);}100%{box-shadow:0 0 0 18px rgba(99,102,241,0);}}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(214,69,44,.5);}100%{box-shadow:0 0 0 18px rgba(214,69,44,0);}}
 
   @media print{
     header,#bottomnav,#right,#add-day,.tools,.more,.del-day,.menu-only{display:none !important;}
     #view-plan{display:flex !important;width:100%;max-width:none;overflow:visible;}
-    body,main{display:block;}
+    body,main{display:block;background:#fff;}
     .items{break-inside:avoid;}
   }
 </style>
@@ -206,20 +260,20 @@
 <body>
 
 <header>
-  <h1>東京 · 9.22–9.26</h1>
-  <span id="countdown"></span>
+  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26</span></div>
   <span class="spacer"></span>
-  <button class="hbtn" id="btn-sync">☁️ 云同步 <span class="dot" id="sync-dot"></span></button>
-  <button class="hbtn plain" id="btn-export">导出</button>
-  <button class="hbtn plain" id="btn-import">导入</button>
-  <button class="hbtn plain" id="btn-print">打印</button>
-  <button class="hbtn plain" id="btn-reset">恢复默认</button>
-  <button class="hbtn menu-only" id="btn-menu">⋯</button>
+  <span class="chip" id="countdown"></span>
+  <button class="iconbtn" id="btn-sync" title="云同步">☁️<span class="dot" id="sync-dot"></span></button>
+  <button class="iconbtn hplain" id="btn-export" title="导出数据">📤</button>
+  <button class="iconbtn hplain" id="btn-import" title="导入数据">📥</button>
+  <button class="iconbtn hplain" id="btn-print" title="打印/PDF">🖨️</button>
+  <button class="iconbtn hplain" id="btn-reset" title="恢复默认">↺</button>
+  <button class="iconbtn menu-only" id="btn-menu">⋯</button>
   <div id="menu">
     <button id="m-export">📤 导出数据</button>
     <button id="m-import">📥 导入数据</button>
     <button id="m-print">🖨️ 打印 / 存 PDF</button>
-    <button id="m-reset" style="color:var(--bad)">↺ 恢复默认行程</button>
+    <button id="m-reset" style="color:var(--verm)">↺ 恢复默认</button>
   </div>
   <input type="file" id="file-import" accept=".json" hidden>
 </header>
@@ -227,25 +281,24 @@
 <main>
   <!-- 行程 -->
   <section class="view on" id="view-plan">
-    <div id="timeline"></div>
+    <div class="scroll"><div class="sec-label">行 程</div><div id="timeline"></div></div>
   </section>
 
   <div id="right">
     <div class="tabs desktop-only">
       <button data-view="map" class="active">🗺️ 地图</button>
-      <button data-view="pack">🎒 行李清单</button>
+      <button data-view="pack">🎒 行李</button>
+      <button data-view="shop">🛍️ 购物</button>
       <button data-view="money">💰 记账</button>
     </div>
     <!-- 地图 -->
     <section class="view on" id="view-map">
-      <div id="map"></div>
-      <div id="legend"></div>
+      <div id="map"></div><div id="legend"></div>
     </section>
-    <!-- 清单 -->
+    <!-- 行李 -->
     <section class="view" id="view-pack">
       <div class="panel">
-        <h3>🎒 行李清单</h3>
-        <div class="sub">出发前逐项勾选</div>
+        <h3>行李清单</h3><div class="sub">出发前逐项勾选</div>
         <div class="addrow">
           <input type="text" id="pack-name" placeholder="添加物品…">
           <button id="pack-add">添加</button>
@@ -254,11 +307,27 @@
         <div class="mini-stats" id="pack-stats"></div>
       </div>
     </section>
+    <!-- 购物 -->
+    <section class="view" id="view-shop">
+      <div class="panel">
+        <h3>购物清单</h3><div class="sub">数量 × 单价自动计算 · 点击价格可直接改</div>
+        <div class="total-card">
+          <div><div class="cap">预计花费</div><div class="big" id="shop-total">¥0</div></div>
+          <div class="side" id="shop-side"></div>
+        </div>
+        <div class="addrow">
+          <input type="text" id="shop-name" placeholder="添加商品…">
+          <input type="number" id="shop-price" placeholder="¥" min="0" inputmode="decimal">
+          <button id="shop-add">添加</button>
+        </div>
+        <div class="rows" id="shop-list"></div>
+        <div class="mini-stats" id="shop-stats"></div>
+      </div>
+    </section>
     <!-- 记账 -->
     <section class="view" id="view-money">
       <div class="panel">
-        <h3>💰 花费记录</h3>
-        <div class="sub">随手记，自动汇总</div>
+        <h3>花费记录</h3><div class="sub">随手记，自动汇总</div>
         <div class="addrow">
           <input type="text" id="exp-name" placeholder="项目（如 演唱会周边）">
           <input type="number" id="exp-amt" placeholder="¥" min="0" inputmode="decimal">
@@ -266,50 +335,42 @@
           <button id="exp-add">记一笔</button>
         </div>
         <div class="rows" id="exp-list"></div>
-        <div class="total-bar"><span>合计</span><b id="exp-total">¥0</b></div>
+        <div class="total-card"><div><div class="cap">合计</div><div class="big" id="exp-total">¥0</div></div></div>
         <div class="mini-stats" id="exp-stats"></div>
       </div>
     </section>
   </div>
 </main>
 
-<!-- 云同步弹窗 -->
-<div id="sync-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(20,20,35,.45);backdrop-filter:blur(3px);" >
-  <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,92vw);max-height:86vh;overflow-y:auto;background:var(--bg);border-radius:20px;padding:20px;">
-    <div style="display:flex;align-items:center;margin-bottom:14px;">
-      <h3 style="font-size:17px;">☁️ 云同步</h3>
-      <span class="spacer" style="flex:1"></span>
-      <button id="sync-close" style="border:none;background:#e9e9f0;border-radius:50%;width:30px;height:30px;font-size:14px;cursor:pointer;">✕</button>
-    </div>
+<!-- 云同步 -->
+<div id="sync-sheet">
+  <div class="box">
+    <div class="sheet-head"><h3>☁️ 多设备同步</h3><span class="spacer"></span>
+      <button id="sync-close">✕</button></div>
     <div id="sync-status">未开启</div>
     <div id="sync-setup">
-      <div class="sync-card">
-        <h4>① 创建云同步（由一人操作）</h4>
-        <p>粘贴 GitHub Token（需 <b>gist</b> 权限），自动创建云端空间并生成「同步码」发给同伴。</p>
-        <input type="password" id="sync-token" placeholder="粘贴 ghp_ 开头的 Token">
-        <div class="btnrow"><button class="btn" id="sync-create">创建并生成同步码</button></div>
-        <div class="tokenhint">没有 Token？<a href="https://github.com/settings/tokens/new?scopes=gist&description=tokyo-plan-sync" target="_blank">点此一键创建</a>（只勾 gist 即可，用后可删）</div>
+      <div class="sync-sec">
+        <h4>① 我发起（一台设备操作一次）</h4>
+        <p>点击下面的按钮创建一个云端空间，会得到一个 6 位同步码。不需要注册、不需要 Token。</p>
+        <button class="btn" id="sync-create">开启同步</button>
       </div>
-      <div class="sync-card">
-        <h4>② 加入云同步（同行者）</h4>
-        <p>把收到的同步码粘贴到下面即可加入，双方的修改会自动互相同步。</p>
-        <input type="text" id="sync-code-in" placeholder="粘贴同步码">
+      <div class="sync-sec">
+        <h4>② 同伴加入（其他设备）</h4>
+        <p>把收到的同步码粘贴到这里，两边的修改会自动互相同步。</p>
+        <input type="text" id="sync-code-in" placeholder="输入 6 位同步码">
         <div class="btnrow"><button class="btn" id="sync-join">连接</button></div>
       </div>
     </div>
     <div id="sync-manage" style="display:none;">
-      <div class="sync-card">
-        <h4>同步码（发给同伴）</h4>
-        <p id="sync-code-show" style="word-break:break-all;background:#f2f2f7;border-radius:10px;padding:10px;font-size:11px;max-height:66px;overflow-y:auto;"></p>
+      <div class="sync-sec">
+        <h4>你的同步码</h4>
+        <div class="code-show" id="sync-code-show">------</div>
+        <p>把同步码发给同行者，TA 连接后你们的行程、清单、记账都会自动保持一致（约几秒延迟）。同时改动时以最后保存的为准。</p>
         <div class="btnrow">
           <button class="btn sec" id="sync-copy">复制同步码</button>
           <button class="btn sec" id="sync-now">立即同步</button>
-          <button class="btn dang" id="sync-off">停止同步</button>
+          <button class="btn dang" id="sync-off">停止</button>
         </div>
-      </div>
-      <div class="sync-card">
-        <h4>说明</h4>
-        <p>· 编辑后约 2 秒自动上传，每 10 秒检查云端更新<br>· 双方同时改动时，以最后一次保存为准<br>· 数据存在 GitHub Gist（私密），仅 Token 持有者可读写</p>
       </div>
     </div>
   </div>
@@ -319,6 +380,7 @@
   <button data-view="plan" class="active"><span class="ic">📋</span>行程</button>
   <button data-view="map"><span class="ic">🗺️</span>地图</button>
   <button data-view="pack"><span class="ic">🎒</span>行李</button>
+  <button data-view="shop"><span class="ic">🛍️</span>购物</button>
   <button data-view="money"><span class="ic">💰</span>记账</button>
 </nav>
 
@@ -339,6 +401,31 @@ const PLACES = {
 };
 
 /* ================= 默认数据 ================= */
+const DEFAULT_SHOPPING = [
+  {name:"宣传册 パンフレット", jp:"A4", price:3500, qty:1, done:false, cat:"通販"},
+  {name:"海报 ポスター", jp:"B2", price:1200, qty:1, done:false, cat:"通販"},
+  {name:"明信片 3枚套装 ×2种", jp:"ポストカード", price:700, qty:2, done:false, cat:"通販", note:"A set / B set"},
+  {name:"透明文件夹 3枚套装", jp:"クリアファイル", price:1300, qty:1, done:false, cat:"通販"},
+  {name:"T恤 GRACE款", jp:"NM-TEE-GRACE / BLACK", price:4000, qty:2, done:false, cat:"通販", note:"S/M/L/XL"},
+  {name:"T恤 Piano款", jp:"NM-TEE-Piano / WHITE", price:4000, qty:2, done:false, cat:"通販", note:"S/M/L/XL"},
+  {name:"开领衬衫", jp:"OPEN COLLAR SHIRT / MOS GRAY", price:7000, qty:0, done:false, cat:"通販", note:"S/M/L/XL"},
+  {name:"围巾毛巾", jp:"マフラータオル", price:2800, qty:0, done:false, cat:"通販", note:"FOREST GREEN"},
+  {name:"荧光棒", jp:"ペンライト -OPUS IV-", price:3000, qty:2, done:false, cat:"通販", note:"电池：3号×1"},
+  {name:"钥匙扣", jp:"キーリング / 本革", price:2500, qty:0, done:false, cat:"通販"},
+  {name:"丝巾", jp:"スカーフ 650×650mm", price:2800, qty:1, done:false, cat:"通販"},
+  {name:"领带", jp:"ネクタイ", price:3900, qty:0, done:false, cat:"通販"},
+  {name:"徽章套装 3个", jp:"ピンズセット / 亜鉛合金", price:2200, qty:1, done:false, cat:"通販"},
+  {name:"托特包", jp:"GRACE トートバッグ", price:6500, qty:1, done:false, cat:"通販"},
+  {name:"歌剧眼镜", jp:"オペラグラス 倍率10倍", price:7700, qty:0, done:false, cat:"通販"},
+  {name:"茶壶套装", jp:"ナネットさんティーフォーワン", price:6800, qty:0, done:false, cat:"通販", note:"容量300ml 带杯"},
+  {name:"红茶 NANA's tea", jp:"2g×5個", price:2600, qty:0, done:false, cat:"通販"},
+  {name:"毛绒玩偶 おすわり", jp:"LIVE VISION ver. 全长约150mm", price:2700, qty:1, done:false, cat:"通販"},
+  {name:"亚克力立牌 全11种", jp:"アクリルスタンド 随机", price:800, qty:11, done:false, cat:"通販", note:"每人限购30"},
+  {name:"曲奇饼干 7枚入", jp:"NANETTE's cookies", price:2000, qty:0, done:false, cat:"会場限定", note:"每人限购2"},
+  {name:"限定T恤 ×2种", jp:"LIMITED TEE / WHITE", price:4000, qty:4, done:false, cat:"会場限定", note:"22/23两场不同设计"},
+  {name:"徽章 全7种", jp:"ピンズ 1個売り", price:800, qty:4, done:false, cat:"会場限定", note:"全套5400円"},
+];
+
 const DEFAULT_STATE = {
   tripStart:"2026-09-22", updatedAt:0,
   days:[
@@ -386,22 +473,24 @@ const DEFAULT_STATE = {
     {name:"信用卡 / Suica", done:false},{name:"雨伞（9月多雨）", done:false},
     {name:"常用药品", done:false},{name:"舒服的鞋", done:false},
   ],
+  shopping: DEFAULT_SHOPPING,
   expenses:[],
 };
 
-const STORE_KEY="tokyo-plan-app-v3";
-const DAY_HEX=["#ef4444","#f59e0b","#10b981","#3b82f6","#8b5cf6","#ec4899","#14b8a6","#f97316","#6366f1","#84cc16"];
+const STORE_KEY="tokyo-plan-app-v4";
+const DAY_HEX=["#d6452c","#d0862c","#3a7d54","#3a5fa8","#7a5aa8","#b84878","#2e8a86","#b8742c","#5a5f9e","#6a8a3a"];
 let S;
 try{
-  const raw=localStorage.getItem(STORE_KEY)||localStorage.getItem("tokyo-plan-app-v2");
+  const raw=localStorage.getItem(STORE_KEY)||localStorage.getItem("tokyo-plan-app-v3")||localStorage.getItem("tokyo-plan-app-v2");
   S = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_STATE));
   if(!S.days) throw 0;
-  localStorage.setItem(STORE_KEY, JSON.stringify(S));
+  if(!Array.isArray(S.shopping)) S.shopping=JSON.parse(JSON.stringify(DEFAULT_SHOPPING));
 }catch(e){ S=JSON.parse(JSON.stringify(DEFAULT_STATE)); }
 if(typeof S.updatedAt!=="number") S.updatedAt=0;
 
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const colorOf=i=>DAY_HEX[i%DAY_HEX.length];
+const JPY=n=>"¥"+Math.round(n).toLocaleString();
 let syncDirty=false;
 
 function save(markSync=true){
@@ -410,104 +499,83 @@ function save(markSync=true){
   if(markSync){ syncDirty=true; schedulePush(); }
 }
 
-/* ================= 云同步（GitHub Gist） ================= */
-const SYNC_KEY="tokyo-plan-sync-v1";
-let syncCfg=null;
-try{ syncCfg=JSON.parse(localStorage.getItem(SYNC_KEY)||"null"); }catch(e){}
-let lastSyncedHash="", syncTimer=null, pollTimer=null;
+/* ================= 云同步（textdb，免Token） ================= */
+const TB="https://textdb.dev/api/data/";
+const SYNC_KEY="tokyo-sync-key-v1";
+let syncKey=null;
+try{ syncKey=localStorage.getItem(SYNC_KEY); }catch(e){}
+let lastSyncHash="", pushTimer=null, pollTimer=null;
 
 function strHash(s){let h=5381;for(let i=0;i<s.length;i++){h=((h<<5)+h+s.charCodeAt(i))|0;}return (h>>>0).toString(16);}
-function b64e(s){const b=new TextEncoder().encode(s);let r="";b.forEach(x=>r+=String.fromCharCode(x));return btoa(r);}
-function b64d(s){const bin=atob(s.trim());const b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return new TextDecoder().decode(b);}
-const GH="https://api.github.com";
+function setSyncStatus(msg,cls){const el=document.getElementById('sync-status');el.textContent=msg;el.className=cls||"";}
+function setSyncDot(cls){document.getElementById('sync-dot').className="dot "+(cls||"");}
 
-function setSyncStatus(msg, cls){ const el=document.getElementById('sync-status'); el.textContent=msg; el.className=cls||""; }
-function setSyncDot(cls){ document.getElementById('sync-dot').className="dot "+(cls||""); }
-
-function schedulePush(){ clearTimeout(syncTimer); syncTimer=setTimeout(syncTick, 2000); }
-async function syncTick(){
-  if(!syncCfg) return;
-  try{
-    if(syncDirty){ await syncPush(); syncDirty=false; return; }
-    const res=await fetch(`${GH}/gists/${syncCfg.g}`,{headers:{Authorization:"Bearer "+syncCfg.t}});
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const j=await res.json();
-    const c=j.files&&j.files["plan.json"]&&j.files["plan.json"].content;
-    if(!c) return;
-    const h=strHash(c);
-    if(h===lastSyncedHash){ setSyncStatus("已同步 ✓ "+new Date().toLocaleTimeString()); setSyncDot("on"); return; }
-    const remote=JSON.parse(c);
-    if((remote.updatedAt||0)>=(S.updatedAt||0)){
-      S=remote; try{localStorage.setItem(STORE_KEY,JSON.stringify(S));}catch(e){}
-      renderAll(); updateCountdown();
-      setSyncStatus("已从云端更新 "+new Date().toLocaleTimeString()); setSyncDot("on");
-    }else{
-      syncDirty=true; await syncPush(); syncDirty=false;
-    }
-    lastSyncedHash=h;
-  }catch(e){ setSyncStatus("同步失败："+e.message+"（稍后重试）","err"); setSyncDot("err"); }
-}
+function schedulePush(){clearTimeout(pushTimer);pushTimer=setTimeout(syncPush,1500);}
 async function syncPush(){
-  const body={files:{"plan.json":{content:JSON.stringify(S)}}};
-  const res=await fetch(`${GH}/gists/${syncCfg.g}`,{method:"PATCH",
-    headers:{Authorization:"Bearer "+syncCfg.t,"Content-Type":"application/json"},body:JSON.stringify(body)});
-  if(!res.ok) throw new Error("上传失败 HTTP "+res.status);
-  lastSyncedHash=strHash(JSON.stringify(S));
-  setSyncStatus("已上传 ✓ "+new Date().toLocaleTimeString()); setSyncDot("on");
-}
-function startPolling(){ clearInterval(pollTimer); pollTimer=setInterval(()=>{ if(!syncDirty) syncTick(); },10000); }
-
-async function syncCreate(){
-  const t=document.getElementById('sync-token').value.trim();
-  if(!t.startsWith("gh")){ alert("请先粘贴 Token（ghp_ 开头）"); return; }
-  setSyncStatus("创建云端空间…");
+  if(!syncKey) return;
   try{
-    S.updatedAt=Date.now();
-    const res=await fetch(`${GH}/gists`,{method:"POST",
-      headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},
-      body:JSON.stringify({description:"tokyo-trip-plan 同步数据",public:false,
-        files:{"plan.json":{content:JSON.stringify(S)}}})});
-    const j=await res.json();
-    if(!res.ok) throw new Error(j.message||("HTTP "+res.status));
-    syncCfg={t,g:j.id};
-    localStorage.setItem(SYNC_KEY,JSON.stringify(syncCfg));
-    lastSyncedHash=strHash(JSON.stringify(S)); syncDirty=false;
-    startPolling(); renderSyncUI();
-  }catch(e){ setSyncStatus("创建失败："+e.message,"err"); setSyncDot("err"); }
+    await fetch(TB+"tt26-"+syncKey,{method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body:"value="+encodeURIComponent(JSON.stringify(S))});
+    lastSyncHash=strHash(JSON.stringify(S)); syncDirty=false;
+    setSyncStatus("已同步 ✓ "+new Date().toLocaleTimeString(),"ok"); setSyncDot("on");
+  }catch(e){ setSyncStatus("上传失败，稍后重试","err"); setSyncDot("err"); }
+}
+async function syncPoll(){
+  if(!syncKey||document.hidden) return;
+  try{
+    const r=await fetch(TB+"tt26-"+syncKey+"?_="+Date.now());
+    let t=await r.text();
+    if(t.startsWith("value=")) t=t.slice(6);
+    if(!t.trim()||t==="null") return;
+    let data; try{data=JSON.parse(t);}catch(e){ try{data=JSON.parse(decodeURIComponent(t));}catch(e2){return;} }
+    if(!data||!data.days) return;
+    const h=strHash(JSON.stringify(data));
+    if(h===strHash(JSON.stringify(S))){ setSyncStatus("已同步 ✓ "+new Date().toLocaleTimeString(),"ok"); return; }
+    if((data.updatedAt||0)>=(S.updatedAt||0)){
+      S=data; try{localStorage.setItem(STORE_KEY,JSON.stringify(S));}catch(e){}
+      renderAll(); updateCountdown();
+      setSyncStatus("已从云端更新 "+new Date().toLocaleTimeString(),"ok"); setSyncDot("on");
+    }else{ syncDirty=true; syncPush(); }
+  }catch(e){ /* 静默，下轮再试 */ }
+}
+function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(syncPoll,6000);syncPoll();}
+function syncCreate(){
+  const code=Array.from(crypto.getRandomValues(new Uint8Array(6)))
+    .map(b=>"abcdefghjkmnpqrstuvwxyz23456789"[b%31]).join("");
+  syncKey=code; localStorage.setItem(SYNC_KEY,code);
+  syncDirty=true; syncPush(); startPolling(); renderSyncUI();
 }
 function syncJoin(){
-  const code=document.getElementById('sync-code-in').value.trim();
-  try{
-    const o=JSON.parse(b64d(code));
-    if(!o.t||!o.g) throw new Error("格式不对");
-    syncCfg={t:o.t,g:o.g};
-    localStorage.setItem(SYNC_KEY,JSON.stringify(syncCfg));
-    syncTick(); startPolling(); renderSyncUI();
-  }catch(e){ alert("同步码无效："+e.message); }
+  const v=document.getElementById('sync-code-in').value.trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+  if(v.length<4){ alert("同步码至少 4 位"); return; }
+  syncKey=v; localStorage.setItem(SYNC_KEY,v);
+  lastSyncHash=""; startPolling(); renderSyncUI();
 }
 function syncOff(){
-  if(!confirm("停止云同步？本机数据保留，之后可重新加入。"))return;
-  syncCfg=null; localStorage.removeItem(SYNC_KEY);
-  clearInterval(pollTimer); syncDirty=false; setSyncDot("");
+  if(!confirm("停止同步？本机数据保留。"))return;
+  syncKey=null; localStorage.removeItem(SYNC_KEY);
+  clearInterval(pollTimer); syncDirty=false; setSyncDot(""); setSyncStatus("未开启");
   renderSyncUI();
 }
 function renderSyncUI(){
-  const has=!!syncCfg;
+  const has=!!syncKey;
   document.getElementById('sync-setup').style.display=has?"none":"block";
   document.getElementById('sync-manage').style.display=has?"block":"none";
-  if(has){
-    const code=b64e(JSON.stringify(syncCfg));
-    document.getElementById('sync-code-show').textContent=code;
-    if(!lastSyncedHash) syncTick();
-  }
+  if(has) document.getElementById('sync-code-show').textContent=syncKey.toUpperCase();
 }
 
-/* ================= 地图 ================= */
-const map=L.map('map',{attributionControl:false}).setView([35.65,139.78],11);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+/* ================= 地图（CDN 失败时优雅降级） ================= */
+let mapOK=false, map=null;
 let markers={}, lines=[], dayOn=S.days.map(()=>true);
+try{
+  map=L.map('map',{attributionControl:false}).setView([35.65,139.78],11);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+  mapOK=true;
+}catch(e){ console.warn('地图不可用：',e.message); }
 
 function refreshMarkers(){
+  if(!mapOK) return;
   Object.values(markers).forEach(m=>map.removeLayer(m)); markers={};
   for(const key of Object.keys(PLACES)){
     const p=PLACES[key];
@@ -522,6 +590,7 @@ function refreshMarkers(){
   drawLines();
 }
 function drawLines(){
+  if(!mapOK) return;
   lines.forEach(l=>map.removeLayer(l)); lines=[];
   S.days.forEach((d,i)=>{
     if(!dayOn[i]) return;
@@ -531,7 +600,7 @@ function drawLines(){
       const p=PLACES[it.place], last=pts[pts.length-1];
       if(!last||last[0]!==p.lat||last[1]!==p.lng) pts.push([p.lat,p.lng]);
     });
-    if(pts.length>1) lines.push(L.polyline(pts,{color:colorOf(i),weight:2,opacity:.6,dashArray:'5 7'}).addTo(map));
+    if(pts.length>1) lines.push(L.polyline(pts,{color:colorOf(i),weight:2,opacity:.65,dashArray:'2 7',lineCap:'round'}).addTo(map));
   });
 }
 const legend=document.getElementById('legend');
@@ -544,6 +613,7 @@ function renderLegend(){
   }));
 }
 function focusPlace(key,itemEl){
+  if(!mapOK){ if(itemEl){itemEl.classList.add('flash');setTimeout(()=>itemEl.classList.remove('flash'),1300);} return; }
   if(key&&PLACES[key]&&markers[key]){
     map.flyTo([PLACES[key].lat,PLACES[key].lng],14,{duration:.6});
     markers[key].openPopup();
@@ -568,7 +638,7 @@ function setView(v){
   }else{
     document.getElementById('view-'+v).classList.add('on');
   }
-  if(rightView==='map'||v==='map') setTimeout(()=>map.invalidateSize(),60);
+  if(mapOK&&(rightView==='map'||v==='map')) setTimeout(()=>map.invalidateSize(),60);
   document.getElementById('menu').classList.remove('open');
 }
 window.addEventListener('resize',()=>setView(curView));
@@ -598,16 +668,18 @@ function render(){
     const done=day.items.filter(it=>it.done).length;
     sec.innerHTML=`
       <div class="day-head">
-        <span class="badge" style="background:linear-gradient(135deg,${colorOf(di)},${colorOf(di)}cc)">${di+1}</span>
-        <span class="title" contenteditable spellcheck="false">${esc(day.title)}</span>
-        <span class="date" contenteditable spellcheck="false">${esc(day.date)}</span>
+        <div class="day-num">${String(di+1).padStart(2,'0')}<small>DAY</small></div>
+        <div class="day-title">
+          <div class="t" contenteditable spellcheck="false">${esc(day.title)}</div>
+          <div class="d" contenteditable spellcheck="false">${esc(day.date)}</div>
+        </div>
         <span class="prog">${done}/${day.items.length}</span>
         <button class="del-day" title="删除这一天">✕</button>
       </div>
-      <div class="progress"><i style="width:${day.items.length?done/day.items.length*100:0}%;background:${colorOf(di)}"></i></div>
+      <div class="progress"><i style="width:${day.items.length?done/day.items.length*100:0}%"></i></div>
       <div class="items" data-day="${di}"></div>`;
-    sec.querySelector('.title').addEventListener('blur',e=>{day.title=e.target.textContent.trim();save();});
-    sec.querySelector('.date').addEventListener('blur',e=>{day.date=e.target.textContent.trim();save();renderLegend();});
+    sec.querySelector('.t').addEventListener('blur',e=>{day.title=e.target.textContent.trim();save();});
+    sec.querySelector('.d').addEventListener('blur',e=>{day.date=e.target.textContent.trim();save();renderLegend();});
     sec.querySelector('.del-day').addEventListener('click',()=>{
       if(confirm(`删除 Day ${di+1}（${day.title}）及全部活动？`)){
         S.days.splice(di,1); dayOn.splice(di,1); save(); renderAll();
@@ -620,10 +692,9 @@ function render(){
       el.className='item'+(it.done?' done':''); el.draggable=true;
       const pin=it.place&&PLACES[it.place]
         ?`<button class="pin-tag" title="点击更换地点">📍${esc(PLACES[it.place].name)}</button>`
-        :`<button class="pin-tag" title="点击设置地点" style="color:#a9adbf">＋地点</button>`;
+        :`<button class="pin-tag" title="点击设置地点" style="color:#a8a396">＋地点</button>`;
       el.innerHTML=`
         <input type="checkbox" class="chk" ${it.done?'checked':''}>
-        <span class="bar" style="background:${colorOf(di)}"></span>
         <span class="time" contenteditable spellcheck="false">${esc(it.time)}</span>
         <div class="txt">
           <div class="name" contenteditable spellcheck="false">${esc(it.name)}</div>
@@ -637,7 +708,7 @@ function render(){
         <div class="more">
           <span class="lbl">移到：</span>
           ${S.days.map((d2,tj)=>tj===di?'':`<button class="mv" data-t="${tj}">Day ${tj+1}</button>`).join('')||'<span class="lbl">（仅有一天）</span>'}
-          <button class="danger delitem">✕ 删除此活动</button>
+          <button class="danger delitem">✕ 删除</button>
         </div>`;
       el.querySelector('.chk').addEventListener('click',e=>{
         e.stopPropagation(); it.done=e.target.checked; save(); render();
@@ -709,7 +780,7 @@ function render(){
   timeline.appendChild(addDay);
   renderLegend();
   refreshMarkers();
-  renderPack(); renderExp();
+  renderPack(); renderShop(); renderExp();
 }
 function dropIndex(list,y){
   const els=[...list.querySelectorAll('.item')].filter(el=>!el.classList.contains('dragging'));
@@ -726,7 +797,7 @@ function renderPack(){
   const box=document.getElementById('pack-list'); box.innerHTML='';
   S.packing.forEach((p,i)=>{
     const el=document.createElement('div'); el.className='row-item';
-    el.innerHTML=`<input type="checkbox" ${p.done?'checked':''}>
+    el.innerHTML=`<input type="checkbox" class="chk" ${p.done?'checked':''}>
       <span class="grow ${p.done?'done':''}">${esc(p.name)}</span>
       <button class="x">✕</button>`;
     el.querySelector('input').addEventListener('change',e=>{p.done=e.target.checked;save();renderPack();});
@@ -742,6 +813,62 @@ document.getElementById('pack-add').addEventListener('click',()=>{
 });
 document.getElementById('pack-name').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('pack-add').click();});
 
+/* ================= 购物清单 ================= */
+function shopTotals(){
+  let total=0, bought=0, count=0;
+  S.shopping.forEach(x=>{
+    const line=(x.price||0)*(x.qty||0);
+    total+=line;
+    if(x.done){ bought+=line; count++; }
+  });
+  return {total, bought, count};
+}
+function updateShopTotals(){
+  const t=shopTotals();
+  document.getElementById('shop-total').textContent=JPY(t.total);
+  document.getElementById('shop-side').innerHTML=
+    `已购 ${t.count} 项 · ${JPY(t.bought)}<br>${S.shopping.length} 项商品`;
+  document.getElementById('shop-stats').textContent=
+    `通販 ${S.shopping.filter(x=>x.cat==="通販").length} 项 · 会場限定 ${S.shopping.filter(x=>x.cat!=="通販").length} 项`;
+}
+function renderShop(){
+  const box=document.getElementById('shop-list'); box.innerHTML='';
+  S.shopping.forEach((x,i)=>{
+    const el=document.createElement('div'); el.className='shop-item'+(x.done?' done':'');
+    const cat=x.cat&&x.cat!=="通販"?`<span class="tag" style="color:var(--verm);background:#fbeae5">${esc(x.cat)}</span>`:`<span class="tag">${esc(x.cat||'')}</span>`;
+    el.innerHTML=`
+      <input type="checkbox" class="chk" ${x.done?'checked':''} title="标记已买">
+      <div class="sname"><div class="n">${esc(x.name)} ${cat}</div>
+        ${x.jp?`<div class="j">${esc(x.jp)}</div>`:''}${x.note?`<div class="j">· ${esc(x.note)}</div>`:''}</div>
+      <div class="stepper">
+        <button class="dec">−</button><span class="q">${x.qty||0}</span><button class="inc">＋</button>
+      </div>
+      <input type="number" class="price" value="${x.price||0}" min="0" step="100" title="单价(円)">
+      <div class="lt">${JPY((x.price||0)*(x.qty||0))}<small>円</small></div>
+      <button class="x">✕</button>`;
+    el.querySelector('.chk').addEventListener('change',e=>{x.done=e.target.checked;save();updateShopTotals();el.classList.toggle('done',x.done);});
+    el.querySelector('.inc').addEventListener('click',()=>{x.qty=(x.qty||0)+1;save();refreshShopRow(el,x);updateShopTotals();});
+    el.querySelector('.dec').addEventListener('click',()=>{x.qty=Math.max(0,(x.qty||0)-1);save();refreshShopRow(el,x);updateShopTotals();});
+    const p=el.querySelector('.price');
+    p.addEventListener('change',()=>{x.price=Math.max(0,Math.round(parseFloat(p.value)||0));save();refreshShopRow(el,x);updateShopTotals();});
+    el.querySelector('.x').addEventListener('click',()=>{S.shopping.splice(i,1);save();renderShop();updateShopTotals();});
+    box.appendChild(el);
+  });
+  updateShopTotals();
+}
+function refreshShopRow(el,x){
+  el.querySelector('.q').textContent=x.qty||0;
+  el.querySelector('.lt').innerHTML=JPY((x.price||0)*(x.qty||0))+"<small>円</small>";
+}
+document.getElementById('shop-add').addEventListener('click',()=>{
+  const n=document.getElementById('shop-name'), p=document.getElementById('shop-price');
+  if(n.value.trim()){
+    S.shopping.push({name:n.value.trim(),jp:"",price:Math.max(0,Math.round(parseFloat(p.value)||0)),qty:1,done:false,cat:"自定义"});
+    save(); renderShop(); n.value=''; p.value='';
+  }
+});
+document.getElementById('shop-name').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('shop-add').click();});
+
 /* ================= 记账 ================= */
 function renderExp(){
   const daySel=document.getElementById('exp-day');
@@ -756,13 +883,13 @@ function renderExp(){
     const el=document.createElement('div'); el.className='row-item';
     const tag=x.day>=0&&S.days[x.day]?`Day ${x.day+1}`:'—';
     el.innerHTML=`<span class="grow">${esc(x.name)}</span><span class="tag">${tag}</span>
-      <span class="amt">¥${x.amount.toLocaleString()}</span><button class="x">✕</button>`;
+      <span class="amt">${JPY(x.amount)}</span><button class="x">✕</button>`;
     el.querySelector('.x').addEventListener('click',()=>{S.expenses.splice(i,1);save();renderExp();});
     list.appendChild(el);
   });
-  document.getElementById('exp-total').textContent='¥'+total.toLocaleString();
+  document.getElementById('exp-total').textContent=JPY(total);
   document.getElementById('exp-stats').innerHTML=Object.entries(byDay).sort((a,b)=>a[0]-b[0])
-    .map(([d,v])=>`<span>Day ${+d+1}: ¥${v.toLocaleString()}</span>`).join('');
+    .map(([d,v])=>`<span>Day ${+d+1}: ${JPY(v)}</span>`).join('');
 }
 document.getElementById('exp-add').addEventListener('click',()=>{
   const n=document.getElementById('exp-name'), a=document.getElementById('exp-amt');
@@ -778,7 +905,7 @@ function updateCountdown(){
   const t=new Date(S.tripStart+"T00:00:00"), now=new Date(); now.setHours(0,0,0,0);
   const d=Math.round((t-now)/86400000);
   document.getElementById('countdown').textContent=
-    d>0?`⏳ 距出发 ${d} 天`:d===0?`🎉 今天出发！`:`✅ 旅程结束`;
+    d>0?`距出发 ${d} 天`:d===0?`今天出发！`:`旅程结束`;
 }
 
 /* ================= 菜单 / 导入导出 ================= */
@@ -792,21 +919,19 @@ function doExport(){
   a.href=URL.createObjectURL(blob); a.download='tokyo-trip-plan.json'; a.click();
   URL.revokeObjectURL(a.href);
 }
-function doPrint(){ window.print(); }
 function doImport(){ document.getElementById('file-import').click(); }
 function doReset(){
-  if(confirm('恢复为默认行程？行李清单和记账记录也会被重置。')){
+  if(confirm('恢复为默认？行程、行李、购物、记账全部重置。')){
     S=JSON.parse(JSON.stringify(DEFAULT_STATE)); dayOn=S.days.map(()=>true);
     save(); renderAll(); updateCountdown();
   }
 }
-document.getElementById('btn-export').addEventListener('click',doExport);
-document.getElementById('btn-import').addEventListener('click',doImport);
-document.getElementById('btn-print').addEventListener('click',doPrint);
-document.getElementById('btn-reset').addEventListener('click',doReset);
+const on=(id,fn)=>{const el=document.getElementById(id); if(el) el.addEventListener('click',fn);};
+on('btn-export',doExport); on('btn-print',()=>window.print());
+on('btn-import',doImport); on('btn-reset',doReset);
 document.getElementById('m-export').addEventListener('click',doExport);
 document.getElementById('m-import').addEventListener('click',doImport);
-document.getElementById('m-print').addEventListener('click',doPrint);
+document.getElementById('m-print').addEventListener('click',()=>window.print());
 document.getElementById('m-reset').addEventListener('click',doReset);
 document.getElementById('file-import').addEventListener('change',e=>{
   const f=e.target.files[0]; if(!f) return;
@@ -815,6 +940,7 @@ document.getElementById('file-import').addEventListener('change',e=>{
     try{
       const data=JSON.parse(r.result);
       if(!data.days) throw new Error('bad');
+      if(!Array.isArray(data.shopping)) data.shopping=JSON.parse(JSON.stringify(DEFAULT_SHOPPING));
       S=data; dayOn=S.days.map(()=>true); save(); renderAll(); updateCountdown();
       alert('导入成功！');
     }catch(err){ alert('文件格式不对，需要本应用导出的 JSON'); }
@@ -822,33 +948,32 @@ document.getElementById('file-import').addEventListener('change',e=>{
   r.readAsText(f); e.target.value='';
 });
 
-/* ================= 云同步 UI 事件 ================= */
-document.getElementById('btn-sync').addEventListener('click',()=>{renderSyncUI();document.getElementById('sync-modal').style.display='block';});
-document.getElementById('sync-close').addEventListener('click',()=>document.getElementById('sync-modal').style.display='none');
-document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal')e.target.style.display='none';});
+/* ================= 云同步 UI ================= */
+document.getElementById('btn-sync').addEventListener('click',()=>{renderSyncUI();document.getElementById('sync-sheet').style.display='block';});
+document.getElementById('sync-close').addEventListener('click',()=>document.getElementById('sync-sheet').style.display='none');
+document.getElementById('sync-sheet').addEventListener('click',e=>{if(e.target.id==='sync-sheet')e.target.style.display='none';});
 document.getElementById('sync-create').addEventListener('click',syncCreate);
 document.getElementById('sync-join').addEventListener('click',syncJoin);
 document.getElementById('sync-off').addEventListener('click',syncOff);
-document.getElementById('sync-now').addEventListener('click',()=>{syncDirty=true;syncTick();});
+document.getElementById('sync-now').addEventListener('click',()=>{syncDirty=true;syncPush();});
 document.getElementById('sync-copy').addEventListener('click',async()=>{
-  const code=document.getElementById('sync-code-show').textContent;
-  try{ await navigator.clipboard.writeText(code); alert('已复制，发给同伴即可 ✓'); }
-  catch(e){ prompt('请手动复制同步码：', code); }
+  try{ await navigator.clipboard.writeText(syncKey); }
+  catch(e){ prompt('同步码：', syncKey); }
+  alert('已复制，发给同伴即可 ✓');
 });
-if(syncCfg){ startPolling(); setSyncDot("on"); }
+if(syncKey){ startPolling(); setSyncDot("on"); setSyncStatus("同步已开启"); }
 
 /* ================= PWA ================= */
 (function(){
   try{
     const c=document.createElement('canvas'); c.width=c.height=192;
     const g=c.getContext('2d');
-    const grd=g.createLinearGradient(0,0,192,192);
-    grd.addColorStop(0,'#6366f1'); grd.addColorStop(1,'#a855f7');
-    g.fillStyle=grd; g.fillRect(0,0,192,192);
-    g.fillStyle='#fff'; g.font='bold 100px sans-serif'; g.textAlign='center'; g.textBaseline='middle';
+    g.fillStyle='#d6452c'; g.fillRect(0,0,192,192);
+    g.fillStyle='#f7f5f0'; g.font='700 96px "Songti SC",serif';
+    g.textAlign='center'; g.textBaseline='middle';
     g.fillText('東',96,102);
-    const man={name:'东京行程规划',short_name:'东京行程',start_url:location.href,display:'standalone',
-      background_color:'#f6f6f9',theme_color:'#6366f1',
+    const man={name:'东京行程规划',short_name:'東京之旅',start_url:location.href,display:'standalone',
+      background_color:'#f7f5f0',theme_color:'#f7f5f0',
       icons:[{src:c.toDataURL('image/png'),sizes:'192x192',type:'image/png'}]};
     const link=document.createElement('link'); link.rel='manifest';
     link.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/json'}));
@@ -859,8 +984,8 @@ if(syncCfg){ startPolling(); setSyncDot("on"); }
 /* ================= 启动 ================= */
 updateCountdown();
 render();
-setView(window.matchMedia('(min-width:900px)').matches ? 'plan' : 'plan');
-map.fitBounds(L.latLngBounds(Object.values(PLACES).map(p=>[p.lat,p.lng])),{padding:[30,30]});
+setView('plan');
+if(mapOK) map.fitBounds(L.latLngBounds(Object.values(PLACES).map(p=>[p.lat,p.lng])),{padding:[30,30]});
 </script>
 </body>
 </html>
