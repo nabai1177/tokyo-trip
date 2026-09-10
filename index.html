@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<title>东京行程 · 9.22–9.26</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --bg:#f4f4f2; --card:#fff; --ink:#2b2b2b; --sub:#8a8a8a; --line:#e6e6e2; --accent:#3b82f6;
+    --d1:#ef4444; --d2:#f59e0b; --d3:#10b981; --d4:#3b82f6; --d5:#8b5cf6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;}
+
+  header{padding:12px 18px;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  header h1{font-size:17px;}
+  #countdown{font-size:12px;background:#fff7e6;color:#b45309;border-radius:20px;padding:4px 10px;font-weight:600;white-space:nowrap;}
+  header .hint{font-size:11px;color:var(--sub);}
+  header .spacer{flex:1;}
+  header button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;}
+  header button:hover{background:#f0f0ee;}
+  header button.primary{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  main{flex:1;display:flex;min-height:0;}
+  #timeline{width:46%;min-width:380px;max-width:560px;overflow-y:auto;padding:16px 14px 60px;}
+  #right{flex:1;display:flex;flex-direction:column;border-left:1px solid var(--line);min-width:0;}
+  .tabs{display:flex;background:var(--card);border-bottom:1px solid var(--line);}
+  .tabs button{flex:1;border:none;background:transparent;padding:11px;font-size:13px;cursor:pointer;color:var(--sub);border-bottom:2px solid transparent;}
+  .tabs button.active{color:var(--ink);border-bottom-color:var(--accent);font-weight:600;}
+  .view{flex:1;display:none;min-height:0;position:relative;}
+  .view.active{display:block;}
+
+  /* ---- 地图 ---- */
+  #map{position:absolute;inset:0;}
+  #legend{position:absolute;z-index:500;top:10px;right:10px;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  #legend .row{display:flex;align-items:center;gap:6px;margin:3px 0;cursor:pointer;white-space:nowrap;}
+  #legend .row.off{opacity:.35;}
+  #legend .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+
+  /* ---- 天 / 卡片 ---- */
+  .day{margin-bottom:16px;}
+  .day-head{display:flex;align-items:center;gap:8px;margin:0 4px 8px;}
+  .badge{width:22px;height:22px;border-radius:50%;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
+  .day-head .title{font-weight:700;font-size:14px;outline:none;border-radius:4px;padding:1px 3px;}
+  .day-head .title:focus,.day-head .date:focus{background:#f2f6ff;box-shadow:0 0 0 1.5px #b8ccff;}
+  .day-head .date{font-size:12px;color:var(--sub);outline:none;border-radius:4px;padding:1px 3px;}
+  .day-head .prog{font-size:11px;color:var(--sub);margin-left:auto;white-space:nowrap;}
+  .day-head .del-day{border:none;background:transparent;color:#c4c4c4;cursor:pointer;font-size:13px;padding:2px 5px;border-radius:6px;display:none;}
+  .day:hover .del-day{display:block;}
+  .day-head .del-day:hover{color:#ef4444;background:#fee;}
+  .progress{height:3px;border-radius:2px;background:#ececea;overflow:hidden;margin:-4px 6px 6px;}
+  .progress i{display:block;height:100%;border-radius:2px;transition:width .25s;}
+
+  .items{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px;transition:border-color .15s,box-shadow .15s;}
+  .items.drop-target{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.15);}
+  .item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;background:#fff;border:1px solid transparent;cursor:grab;position:relative;}
+  .item:hover{border-color:var(--line);background:#fafaf8;}
+  .item.dragging{opacity:.35;cursor:grabbing;}
+  .item.done .name,.item.done .note{text-decoration:line-through;color:#b8b8b4;}
+  .item .chk{width:17px;height:17px;accent-color:#10b981;cursor:pointer;flex:none;}
+  .item .time{font-size:12px;font-weight:600;color:var(--sub);min-width:56px;flex:none;font-variant-numeric:tabular-nums;outline:none;border-radius:4px;padding:1px 2px;}
+  .item .time:focus{background:#f2f6ff;box-shadow:0 0 0 1.5px #b8ccff;}
+  .item .bar{width:3px;height:26px;border-radius:2px;flex:none;}
+  .item .txt{flex:1;min-width:0;}
+  .item .name{font-size:13px;font-weight:600;line-height:1.35;outline:none;border-radius:4px;padding:1px 3px;}
+  .item .name:focus,.item .note:focus{background:#f2f6ff;box-shadow:0 0 0 1.5px #b8ccff;}
+  .item .note{font-size:11px;color:var(--sub);line-height:1.4;outline:none;border-radius:4px;padding:1px 3px;}
+  .item .pin-tag{font-size:10px;color:#555;background:#f1f1ee;border-radius:5px;padding:3px 7px;flex:none;white-space:nowrap;cursor:pointer;border:none;}
+  .item .pin-tag:hover{background:#e7e7e3;}
+  .item select.place-pick{font-size:11px;border:1px solid var(--line);border-radius:5px;padding:2px;max-width:130px;}
+  .item .del{position:absolute;top:4px;right:6px;width:18px;height:18px;border:none;background:transparent;color:#c4c4c4;font-size:14px;cursor:pointer;border-radius:50%;line-height:1;display:none;}
+  .item:hover .del{display:block;}
+  .item .del:hover{color:#ef4444;background:#fee;}
+  .item.flash{animation:flash 1.2s ease;}
+  @keyframes flash{0%{background:#fff7cc;}100%{background:#fff;}}
+  .add-btn{width:100%;border:none;background:transparent;color:#b0b0ac;font-size:12px;padding:8px;cursor:pointer;border-radius:8px;}
+  .add-btn:hover{background:#f4f4f0;color:var(--ink);}
+  #add-day{display:block;margin:6px auto 30px;border:1.5px dashed #cfcfca;background:transparent;color:#8a8a8a;font-size:13px;padding:10px 22px;border-radius:10px;cursor:pointer;}
+  #add-day:hover{border-color:var(--accent);color:var(--accent);}
+
+  .pin{display:block;width:14px;height:14px;border-radius:50%;background:#fff;border:3.5px solid var(--c,#888);box-shadow:0 1px 4px rgba(0,0,0,.3);}
+  .pin.pulse{animation:pulse .9s ease 2;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(59,130,246,.5);}100%{box-shadow:0 0 0 18px rgba(59,130,246,0);}}
+
+  /* ---- 清单 / 记账 ---- */
+  .panel{position:absolute;inset:0;overflow-y:auto;padding:16px;}
+  .panel h3{font-size:14px;margin-bottom:4px;}
+  .panel .sub{font-size:11px;color:var(--sub);margin-bottom:12px;}
+  .addrow{display:flex;gap:8px;margin-bottom:14px;}
+  .addrow input,.addrow select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;background:#fff;min-width:0;}
+  .addrow input[type=text]{flex:1;}
+  .addrow input[type=number]{width:90px;}
+  .addrow button{border:none;background:var(--ink);color:#fff;border-radius:8px;padding:0 16px;font-size:13px;cursor:pointer;}
+  .rows{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;}
+  .row-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13px;}
+  .row-item:hover{background:#fafaf8;}
+  .row-item .grow{flex:1;min-width:0;}
+  .row-item .grow.done{text-decoration:line-through;color:#b8b8b4;}
+  .row-item .amt{font-weight:700;font-variant-numeric:tabular-nums;}
+  .row-item .tag{font-size:10px;color:#666;background:#f1f1ee;border-radius:5px;padding:2px 6px;}
+  .row-item .x{border:none;background:transparent;color:#c4c4c4;cursor:pointer;font-size:13px;padding:2px 6px;border-radius:6px;}
+  .row-item .x:hover{color:#ef4444;background:#fee;}
+  .total-bar{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;}
+  .total-bar b{font-size:18px;}
+  .mini-stats{font-size:11px;color:var(--sub);margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+
+  .leaflet-popup-content{font-size:13px;font-family:inherit;}
+  @media print{
+    header .hint,header button,#right,#add-day,.del,.del-day{display:none!important;}
+    #timeline{width:100%;max-width:none;overflow:visible;}
+    body{display:block;}
+    .items{break-inside:avoid;}
+  }
+  @media (max-width:900px){
+    main{flex-direction:column;}
+    #timeline{width:100%;max-width:none;min-width:0;max-height:52%;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🗼 东京行程</h1>
+  <span id="countdown"></span>
+  <span class="hint">拖动卡片排序/换天 · 点击文字编辑 · ✕删除</span>
+  <span class="spacer"></span>
+  <button id="btn-export">导出</button>
+  <button id="btn-import">导入</button>
+  <button id="btn-print">打印</button>
+  <button id="btn-reset" class="primary">恢复默认</button>
+  <input type="file" id="file-import" accept=".json" hidden>
+</header>
+
+<main>
+  <div id="timeline"></div>
+  <div id="right">
+    <div class="tabs">
+      <button data-view="map" class="active">🗺️ 地图</button>
+      <button data-view="pack">🎒 行李清单</button>
+      <button data-view="money">💰 记账</button>
+    </div>
+    <div class="view active" id="view-map">
+      <div id="map"></div>
+      <div id="legend"></div>
+    </div>
+    <div class="view" id="view-pack">
+      <div class="panel">
+        <h3>🎒 行李清单</h3>
+        <div class="sub">出发前逐项勾选</div>
+        <div class="addrow">
+          <input type="text" id="pack-name" placeholder="添加物品…">
+          <button id="pack-add">添加</button>
+        </div>
+        <div class="rows" id="pack-list"></div>
+        <div class="mini-stats" id="pack-stats"></div>
+      </div>
+    </div>
+    <div class="view" id="view-money">
+      <div class="panel">
+        <h3>💰 花费记录</h3>
+        <div class="sub">随手记，自动汇总</div>
+        <div class="addrow">
+          <input type="text" id="exp-name" placeholder="项目（如 演唱会周边）">
+          <input type="number" id="exp-amt" placeholder="¥" min="0">
+          <select id="exp-day"></select>
+          <button id="exp-add">记一笔</button>
+        </div>
+        <div class="rows" id="exp-list"></div>
+        <div class="total-bar"><span>合计</span><b id="exp-total">¥0</b></div>
+        <div class="mini-stats" id="exp-stats"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ================= 地点库 ================= */
+const PLACES = {
+  haneda:      {name:"羽田机场",            lat:35.5494, lng:139.7798},
+  shinjuku:    {name:"新宿·京王布莱索酒店",  lat:35.6912, lng:139.7000},
+  shinjukuArea:{name:"新宿",                lat:35.6938, lng:139.7036},
+  yoyogi:      {name:"代代木国立竞技场",     lat:35.6679, lng:139.6991},
+  asakusa:     {name:"浅草寺",              lat:35.7148, lng:139.7967},
+  akihabara:   {name:"秋叶原",              lat:35.7023, lng:139.7745},
+  shinurayasu: {name:"新浦安",              lat:35.6560, lng:139.9030},
+  disneysea:   {name:"迪士尼海洋",          lat:35.6267, lng:139.8872},
+  shinagawa:   {name:"品川/滨松町",         lat:35.6284, lng:139.7387},
+  shibuya:     {name:"涩谷·Shibuya Sky",   lat:35.6580, lng:139.7016},
+};
+
+/* ================= 默认数据 ================= */
+const DEFAULT_STATE = {
+  tripStart:"2026-09-22",
+  days:[
+    {date:"9/22 周一", title:"抵达 + 演唱会①", items:[
+      {time:"12:30", name:"抵达羽田机场，入境取行李", note:"约1小时；办交通卡 Suica", place:"haneda", done:false},
+      {time:"13:45", name:"单轨→滨松町→山手线→新宿", note:"约50分钟", place:null, done:false},
+      {time:"15:00", name:"京王布莱索酒店 入住/寄存", note:"入住15:00起", place:"shinjuku", done:false},
+      {time:"15:40", name:"新宿→原宿（2站）→代代木", note:"步行5分钟到场馆", place:"yoyogi", done:false},
+      {time:"16:00", name:"排周边 goods（务必赶早！）", note:"第一天队伍最长", place:null, done:false},
+      {time:"晚间",  name:"演唱会①", note:"散场山手线回新宿", place:null, done:false},
+    ]},
+    {date:"9/23 周二", title:"新宿闲逛 + 演唱会②", items:[
+      {time:"上午", name:"新宿自由活动", note:"都厅展望台·思出横丁·歌舞伎町·唐吉诃德", place:"shinjukuArea", done:false},
+      {time:"中午", name:"新宿午餐 + 回酒店休息", note:"", place:null, done:false},
+      {time:"下午", name:"提前前往代代木排队", note:"热门周边大概率售罄", place:"yoyogi", done:false},
+      {time:"晚间", name:"演唱会②", note:"", place:null, done:false},
+    ]},
+    {date:"9/24 周三", title:"浅草寺 → 秋叶原 → 新浦安", items:[
+      {time:"早上", name:"退房，行李宅急便寄新浦安", note:"10点前交件当天到", place:"shinjuku", done:false},
+      {time:"上午", name:"浅草寺·雷门·仲见世", note:"大江户线直通25分钟；天妇罗/鳗鱼饭", place:"asakusa", done:false},
+      {time:"下午", name:"秋叶原", note:"筑波快线直达5分钟；animate/RADIO会馆", place:"akihabara", done:false},
+      {time:"傍晚", name:"→东京站→京叶线→新浦安入住", note:"为迪士尼养精蓄锐", place:"shinurayasu", done:false},
+    ]},
+    {date:"9/25 周四", title:"迪士尼海洋一整天", items:[
+      {time:"07:00", name:"出发，开园前排队长", note:"App提前买票+抢DPA", place:"shinurayasu", done:false},
+      {time:"08:30", name:"入园：翱翔→地心探险→惊魂古塔", note:"按DPA时间安排", place:"disneysea", done:false},
+      {time:"下午", name:"表演/巡游/园区闲逛", note:"", place:null, done:false},
+      {time:"20:00", name:"出园→品川/滨松町入住", note:"舞滨→东京→山手线", place:"shinagawa", done:false},
+    ]},
+    {date:"9/26 周五", title:"涩谷 → 羽田返程", items:[
+      {time:"上午", name:"自然醒，退房寄存行李", note:"回程顺路取", place:"shinagawa", done:false},
+      {time:"11:00", name:"品川→涩谷", note:"山手线12分钟", place:null, done:false},
+      {time:"中午", name:"涩谷午餐+八公像/十字路口", note:"MIYASHITA PARK", place:"shibuya", done:false},
+      {time:"14:00", name:"Shibuya Sky 展望台", note:"提前官网订票！", place:"shibuya", done:false},
+      {time:"15:30", name:"涩谷购物", note:"PARCO：任天堂东京·宝可梦中心", place:null, done:false},
+      {time:"18:30", name:"回酒店取行李", note:"", place:null, done:false},
+      {time:"19:15", name:"京急线→羽田机场", note:"19:45前到，值机+免税店", place:"haneda", done:false},
+      {time:"22:30", name:"✈️ 起飞回上海", note:"", place:null, done:false},
+    ]},
+  ],
+  packing:[
+    {name:"护照 / 签证", done:false},{name:"机票 & 酒店确认单", done:false},
+    {name:"演唱会电子票 / 入场码", done:false},{name:"迪士尼门票（App）", done:false},
+    {name:"充电宝 + 数据线", done:false},{name:"日元现金", done:false},
+    {name:"信用卡 / Suica", done:false},{name:"雨伞（9月多雨）", done:false},
+    {name:"常用药品", done:false},{name:"舒服的鞋", done:false},
+  ],
+  expenses:[],
+};
+const STORE_KEY="tokyo-plan-app-v2";
+const DAY_HEX=["#ef4444","#f59e0b","#10b981","#3b82f6","#8b5cf6","#ec4899","#14b8a6","#f97316","#6366f1","#84cc16"];
+
+let S;
+try{
+  const raw=localStorage.getItem(STORE_KEY);
+  S = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_STATE));
+  if(!S.days) throw 0;
+}catch(e){ S=JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+function save(){ try{localStorage.setItem(STORE_KEY, JSON.stringify(S));}catch(e){} }
+const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const colorOf = i => DAY_HEX[i % DAY_HEX.length];
+
+/* ================= 倒计时 ================= */
+(function(){
+  const t=new Date(S.tripStart+"T00:00:00"); const now=new Date(); now.setHours(0,0,0,0);
+  const d=Math.round((t-now)/86400000);
+  const el=document.getElementById('countdown');
+  el.textContent = d>0 ? `⏳ 距出发还有 ${d} 天` : d===0 ? `🎉 今天出发！` : `✅ 旅程已结束`;
+})();
+
+/* ================= 地图 ================= */
+const map=L.map('map',{attributionControl:false}).setView([35.65,139.78],11);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+let markers={}, lines=[], dayOn=S.days.map(()=>true);
+
+function refreshMarkers(){
+  Object.values(markers).forEach(m=>map.removeLayer(m)); markers={};
+  for(const key of Object.keys(PLACES)){
+    const p=PLACES[key];
+    const used=S.days.map((d,i)=>d.items.some(it=>it.place===key)?i:-1).filter(i=>i>=0);
+    if(!used.length) continue;
+    const icon=L.divIcon({className:'',iconSize:[14,14],
+      html:`<span class="pin" id="pin-${key}" style="--c:${colorOf(used[0])}"></span>`});
+    const m=L.marker([p.lat,p.lng],{icon}).addTo(map);
+    m.bindPopup(`<b>${p.name}</b><br><span style="color:#888;font-size:12px">Day ${used.map(i=>i+1).join(' / ')}</span>`);
+    markers[key]=m;
+  }
+  drawLines();
+}
+function drawLines(){
+  lines.forEach(l=>map.removeLayer(l)); lines=[];
+  S.days.forEach((d,i)=>{
+    if(!dayOn[i]) return;
+    const pts=[];
+    d.items.forEach(it=>{
+      if(!it.place||!PLACES[it.place]) return;
+      const p=PLACES[it.place], last=pts[pts.length-1];
+      if(!last||last[0]!==p.lat||last[1]!==p.lng) pts.push([p.lat,p.lng]);
+    });
+    if(pts.length>1) lines.push(L.polyline(pts,{color:colorOf(i),weight:2,opacity:.6,dashArray:'5 7'}).addTo(map));
+  });
+}
+const legend=document.getElementById('legend');
+function renderLegend(){
+  legend.innerHTML=S.days.map((d,i)=>
+    `<div class="row ${dayOn[i]?'':'off'}" data-i="${i}">
+      <span class="dot" style="background:${colorOf(i)}"></span>Day ${i+1} · ${esc(d.date)}</div>`).join('');
+  legend.querySelectorAll('.row').forEach(r=>r.addEventListener('click',()=>{
+    const i=+r.dataset.i; dayOn[i]=!dayOn[i]; renderLegend(); drawLines();
+  }));
+}
+function focusPlace(key,itemEl){
+  if(key&&PLACES[key]&&markers[key]){
+    map.flyTo([PLACES[key].lat,PLACES[key].lng],14,{duration:.6});
+    markers[key].openPopup();
+    const pin=document.getElementById('pin-'+key);
+    if(pin){pin.classList.remove('pulse');void pin.offsetWidth;pin.classList.add('pulse');}
+  }else if(itemEl){
+    itemEl.classList.add('flash'); setTimeout(()=>itemEl.classList.remove('flash'),1300);
+  }
+}
+
+/* ================= 时间轴 ================= */
+const timeline=document.getElementById('timeline');
+let dragCtx=null;
+
+function render(){
+  timeline.innerHTML='';
+  S.days.forEach((day,di)=>{
+    const sec=document.createElement('div'); sec.className='day';
+    const done=day.items.filter(it=>it.done).length;
+    sec.innerHTML=`
+      <div class="day-head">
+        <span class="badge" style="background:${colorOf(di)}">${di+1}</span>
+        <span class="title" contenteditable spellcheck="false">${esc(day.title)}</span>
+        <span class="date" contenteditable spellcheck="false">${esc(day.date)}</span>
+        <span class="prog">${done}/${day.items.length}</span>
+        <button class="del-day" title="删除这一天">✕</button>
+      </div>
+      <div class="progress"><i style="width:${day.items.length?done/day.items.length*100:0}%;background:${colorOf(di)}"></i></div>
+      <div class="items" data-day="${di}"></div>`;
+    sec.querySelector('.title').addEventListener('blur',e=>{day.title=e.target.textContent.trim();save();});
+    sec.querySelector('.date').addEventListener('blur',e=>{day.date=e.target.textContent.trim();save();renderLegend();});
+    sec.querySelector('.del-day').addEventListener('click',()=>{
+      if(confirm(`删除 Day ${di+1}（${day.title}）及全部活动？`)){
+        S.days.splice(di,1); dayOn.splice(di,1); save(); renderAll();
+      }
+    });
+
+    const list=sec.querySelector('.items');
+    day.items.forEach((it,ii)=>{
+      const el=document.createElement('div');
+      el.className='item'+(it.done?' done':''); el.draggable=true;
+      const pin=it.place&&PLACES[it.place]
+        ?`<button class="pin-tag" title="点击更换地点">📍${esc(PLACES[it.place].name)}</button>`
+        :`<button class="pin-tag" title="点击设置地点" style="color:#b0b0ac">＋地点</button>`;
+      el.innerHTML=`
+        <input type="checkbox" class="chk" ${it.done?'checked':''}>
+        <span class="bar" style="background:${colorOf(di)}"></span>
+        <span class="time" contenteditable spellcheck="false">${esc(it.time)}</span>
+        <div class="txt">
+          <div class="name" contenteditable spellcheck="false">${esc(it.name)}</div>
+          <div class="note" contenteditable spellcheck="false" data-ph="${it.note?'':'备注…'}">${esc(it.note)}</div>
+        </div>${pin}
+        <button class="del" title="删除">✕</button>`;
+      // 勾选完成
+      el.querySelector('.chk').addEventListener('click',e=>{
+        e.stopPropagation(); it.done=e.target.checked; save(); render();
+      });
+      // 删除
+      el.querySelector('.del').addEventListener('click',e=>{
+        e.stopPropagation(); day.items.splice(ii,1); save(); renderAll();
+      });
+      // 点击卡片 → 地图定位
+      el.addEventListener('click',e=>{
+        if(e.target.isContentEditable||e.target.classList.contains('del')||e.target.classList.contains('chk'))return;
+        focusPlace(it.place, el);
+      });
+      // 编辑
+      el.querySelectorAll('[contenteditable]').forEach(c=>{
+        c.addEventListener('mousedown',()=>{el.draggable=false;});
+        c.addEventListener('blur',()=>{
+          el.draggable=true;
+          if(c.classList.contains('time')) it.time=c.textContent.trim();
+          else if(c.classList.contains('name')) it.name=c.textContent.trim();
+          else it.note=c.textContent.trim();
+          save();
+        });
+        c.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();c.blur();}});
+      });
+      // 地点下拉
+      el.querySelector('.pin-tag').addEventListener('click',e=>{
+        e.stopPropagation();
+        const sel=document.createElement('select'); sel.className='place-pick';
+        sel.innerHTML=`<option value="">（无地点）</option>`+
+          Object.entries(PLACES).map(([k,p])=>`<option value="${k}" ${it.place===k?'selected':''}>${p.name}</option>`).join('');
+        e.target.replaceWith(sel); sel.focus();
+        const finish=()=>{render();};
+        sel.addEventListener('change',()=>{it.place=sel.value||null;save();finish();});
+        sel.addEventListener('blur',finish);
+      });
+      // 拖拽
+      el.addEventListener('dragstart',e=>{
+        dragCtx={day:di,idx:ii}; el.classList.add('dragging');
+        e.dataTransfer.effectAllowed='move';
+        try{e.dataTransfer.setData('text/plain','x');}catch(_){}
+      });
+      el.addEventListener('dragend',()=>{el.classList.remove('dragging');dragCtx=null;});
+
+      list.appendChild(el);
+    });
+
+    list.addEventListener('dragover',e=>{e.preventDefault();list.classList.add('drop-target');});
+    list.addEventListener('dragleave',()=>list.classList.remove('drop-target'));
+    list.addEventListener('drop',e=>{
+      e.preventDefault(); list.classList.remove('drop-target');
+      if(!dragCtx) return;
+      const src=S.days[dragCtx.day], moved=src.items.splice(dragCtx.idx,1)[0];
+      day.items.splice(dropIndex(list,e.clientY),0,moved);
+      save(); renderAll();
+    });
+    const add=document.createElement('button'); add.className='add-btn'; add.textContent='＋ 添加活动';
+    add.addEventListener('click',()=>{
+      day.items.push({time:'--:--',name:'新活动',note:'',place:null,done:false});
+      save(); renderAll();
+    });
+    list.appendChild(add);
+    timeline.appendChild(sec);
+  });
+  const addDay=document.createElement('button'); addDay.id='add-day'; addDay.textContent='＋ 添加新的一天';
+  addDay.addEventListener('click',()=>{
+    S.days.push({date:'--/--', title:'新的一天', items:[]});
+    dayOn.push(true); save(); renderAll();
+  });
+  timeline.appendChild(addDay);
+  renderLegend();
+  refreshMarkers();
+  renderPack(); renderExp();
+}
+function dropIndex(list,y){
+  const els=[...list.querySelectorAll('.item')].filter(el=>!el.classList.contains('dragging'));
+  for(let i=0;i<els.length;i++){
+    const r=els[i].getBoundingClientRect();
+    if(y<r.top+r.height/2) return i;
+  }
+  return els.length;
+}
+function renderAll(){ render(); renderExp(); }
+
+/* ================= 行李清单 ================= */
+function renderPack(){
+  const box=document.getElementById('pack-list'); box.innerHTML='';
+  S.packing.forEach((p,i)=>{
+    const el=document.createElement('div'); el.className='row-item';
+    el.innerHTML=`<input type="checkbox" ${p.done?'checked':''}>
+      <span class="grow ${p.done?'done':''}">${esc(p.name)}</span>
+      <button class="x">✕</button>`;
+    el.querySelector('input').addEventListener('change',e=>{p.done=e.target.checked;save();renderPack();});
+    el.querySelector('.x').addEventListener('click',()=>{S.packing.splice(i,1);save();renderPack();});
+    box.appendChild(el);
+  });
+  const d=S.packing.filter(p=>p.done).length;
+  document.getElementById('pack-stats').textContent=`已打包 ${d} / ${S.packing.length} 项`;
+}
+document.getElementById('pack-add').addEventListener('click',()=>{
+  const inp=document.getElementById('pack-name'), v=inp.value.trim();
+  if(v){S.packing.push({name:v,done:false});save();renderPack();inp.value='';}
+});
+document.getElementById('pack-name').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('pack-add').click();});
+
+/* ================= 记账 ================= */
+function renderExp(){
+  const daySel=document.getElementById('exp-day');
+  daySel.innerHTML=`<option value="-1">不计入某天</option>`+
+    S.days.map((d,i)=>`<option value="${i}">Day ${i+1} · ${esc(d.date)}</option>`).join('');
+  const list=document.getElementById('exp-list'); list.innerHTML='';
+  let total=0; const byDay={};
+  S.expenses.forEach((x,i)=>{
+    total+=x.amount; byDay[x.day]=(byDay[x.day]||0)+x.amount;
+    const el=document.createElement('div'); el.className='row-item';
+    const tag=x.day>=0&&S.days[x.day]?`Day ${x.day+1}`:'—';
+    el.innerHTML=`<span class="grow">${esc(x.name)}</span><span class="tag">${tag}</span>
+      <span class="amt">¥${x.amount.toLocaleString()}</span><button class="x">✕</button>`;
+    el.querySelector('.x').addEventListener('click',()=>{S.expenses.splice(i,1);save();renderExp();});
+    list.appendChild(el);
+  });
+  document.getElementById('exp-total').textContent='¥'+total.toLocaleString();
+  const stats=document.getElementById('exp-stats');
+  stats.innerHTML=Object.entries(byDay).sort((a,b)=>a[0]-b[0])
+    .map(([d,v])=>`<span>Day ${+d+1}: ¥${v.toLocaleString()}</span>`).join('');
+}
+document.getElementById('exp-add').addEventListener('click',()=>{
+  const n=document.getElementById('exp-name'), a=document.getElementById('exp-amt');
+  const amount=Math.round(parseFloat(a.value)*100)/100;
+  if(n.value.trim()&&amount>0){
+    S.expenses.push({name:n.value.trim(),amount,day:+document.getElementById('exp-day').value});
+    save(); renderExp(); n.value=''; a.value='';
+  }
+});
+
+/* ================= Tabs ================= */
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('view-'+b.dataset.view).classList.add('active');
+  if(b.dataset.view==='map') setTimeout(()=>map.invalidateSize(),50);
+}));
+
+/* ================= 导入 / 导出 / 打印 / 重置 ================= */
+document.getElementById('btn-export').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='tokyo-trip-plan.json'; a.click();
+  URL.revokeObjectURL(a.href);
+});
+document.getElementById('btn-import').addEventListener('click',()=>document.getElementById('file-import').click());
+document.getElementById('file-import').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if(!data.days) throw new Error('bad');
+      S=data; dayOn=S.days.map(()=>true); save(); renderAll(); updateCountdown();
+      alert('导入成功！');
+    }catch(err){ alert('文件格式不对，需要本应用导出的 JSON'); }
+  };
+  r.readAsText(f); e.target.value='';
+});
+document.getElementById('btn-print').addEventListener('click',()=>window.print());
+document.getElementById('btn-reset').addEventListener('click',()=>{
+  if(confirm('恢复为默认行程？行李清单和记账记录也会被重置。')){
+    S=JSON.parse(JSON.stringify(DEFAULT_STATE)); dayOn=S.days.map(()=>true);
+    save(); renderAll(); updateCountdown();
+  }
+});
+function updateCountdown(){
+  const t=new Date(S.tripStart+"T00:00:00"), now=new Date(); now.setHours(0,0,0,0);
+  const d=Math.round((t-now)/86400000);
+  document.getElementById('countdown').textContent=
+    d>0?`⏳ 距出发还有 ${d} 天`:d===0?`🎉 今天出发！`:`✅ 旅程已结束`;
+}
+
+/* ================= PWA 安装支持 ================= */
+(function(){
+  try{
+    const c=document.createElement('canvas'); c.width=c.height=192;
+    const g=c.getContext('2d');
+    g.fillStyle='#ef4444'; g.fillRect(0,0,192,192);
+    g.fillStyle='#fff'; g.font='bold 110px sans-serif'; g.textAlign='center'; g.textBaseline='middle';
+    g.fillText('東',96,102);
+    const man={name:'东京行程规划',short_name:'东京行程',start_url:location.href,display:'standalone',
+      background_color:'#f4f4f2',theme_color:'#ffffff',
+      icons:[{src:c.toDataURL('image/png'),sizes:'192x192',type:'image/png'}]};
+    const link=document.createElement('link'); link.rel='manifest';
+    link.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/json'}));
+    document.head.appendChild(link);
+  }catch(e){}
+})();
+
+/* ================= 启动 ================= */
+render();
+map.fitBounds(L.latLngBounds(Object.values(PLACES).map(p=>[p.lat,p.lng])),{padding:[30,30]});
+</script>
+</body>
+</html>
