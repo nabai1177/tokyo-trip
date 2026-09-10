@@ -254,6 +254,8 @@
   #map-daylist .ml-stop .n{flex:none;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px;
     font-weight:700;display:flex;align-items:center;justify-content:center;}
   #map-daylist .ml-stop .t{color:var(--sub);font-size:11.5px;min-width:44px;flex:none;font-variant-numeric:tabular-nums;}
+  #map-daylist a.ml-nav{flex:none;font-size:15px;text-decoration:none;padding:2px 4px;border-radius:7px;}
+  #map-daylist a.ml-nav:hover{background:#e8f0fe;}
   @media (min-width:900px){ #map-daybar{bottom:calc(env(safe-area-inset-bottom) + 16px);} }
 
   /* ============ 行程建议 ============ */
@@ -307,6 +309,9 @@
   @media (max-width:899px){ .menu-only{display:flex;} .hplain{display:none !important;} }
 
   .leaflet-popup-content{font-size:13px;font-family:inherit;}
+  .leaflet-popup-content a.gnav{display:inline-block;margin-top:5px;font-size:12px;font-weight:700;
+    color:#1a73e8;text-decoration:none;background:#e8f0fe;border-radius:9px;padding:4px 10px;}
+  .leaflet-popup-content a.gnav:active{background:#d2e3fc;}
   .pin{display:block;width:14px;height:14px;border-radius:50%;background:#fff;border:3.5px solid var(--c,#888);
     box-shadow:0 1px 4px rgba(0,0,0,.3);}
   .pin.pulse{animation:pulse .9s ease 2;}
@@ -323,7 +328,7 @@
 <body>
 
 <header>
-  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v5.1</span></div>
+  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v5.2</span></div>
   <span class="spacer"></span>
   <span class="chip" id="countdown"></span>
   <button class="iconbtn" id="btn-sync" title="云同步">☁️<span class="dot" id="sync-dot"></span></button>
@@ -737,7 +742,7 @@ let mapOK=false, map=null;
 let markers={}, lines=[], dayOn=S.days.map(()=>true);
 try{
   map=L.map('map',{attributionControl:false}).setView([35.65,139.78],11);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
   mapOK=true;
 }catch(e){ console.warn('地图不可用：',e.message); }
 
@@ -751,7 +756,7 @@ function refreshMarkers(){
     const icon=L.divIcon({className:'',iconSize:[14,14],
       html:`<span class="pin" id="pin-${key}" style="--c:${colorOf(used[0])}"></span>`});
     const m=L.marker([p.lat,p.lng],{icon}).addTo(map);
-    m.bindPopup(`<b>${p.name}</b><br><span style="color:#888;font-size:12px">Day ${used.map(i=>i+1).join(' / ')}</span>`);
+    m.bindPopup(`<b>${p.name}</b><br><span style="color:#888;font-size:12px">Day ${used.map(i=>i+1).join(' / ')}</span><br><a class="gnav" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat}%2C${p.lng}" target="_blank" rel="noopener">🧭 Google 地图导航</a>`);
     markers[key]=m;
   }
   drawLines();
@@ -809,9 +814,11 @@ function renderMapDay(){
     stops.push({key:it.place,time:it.time});
   });
   list.innerHTML=`<div class="ml-head"><b>Day ${mapDay+1} · ${esc(d.title)}</b><span>${stops.length} 个地点</span></div>`+
-    (stops.length?stops.map((s,i)=>
-      `<div class="ml-stop" data-k="${s.key}"><span class="n" style="background:${colorOf(mapDay)}">${i+1}</span><span class="t">${esc(s.time)}</span><span>${esc(PLACES[s.key].name)}</span></div>`
-    ).join(''):'<div class="ml-stop" style="color:#a8a396;cursor:default">这一天还没标注地点</div>');
+    (stops.length?stops.map((s,i)=>{
+      const p=PLACES[s.key];
+      return `<div class="ml-stop" data-k="${s.key}"><span class="n" style="background:${colorOf(mapDay)}">${i+1}</span><span class="t">${esc(s.time)}</span><span style="flex:1">${esc(p.name)}</span><a class="ml-nav" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat}%2C${p.lng}" target="_blank" rel="noopener" title="Google 地图导航">🧭</a></div>`;
+    }).join(''):'<div class="ml-stop" style="color:#a8a396;cursor:default">这一天还没标注地点</div>');
+  list.querySelectorAll('.ml-nav').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
   list.querySelectorAll('.ml-stop[data-k]').forEach(el2=>el2.addEventListener('click',()=>{
     const p=PLACES[el2.dataset.k];
     if(!mapOK) return;
@@ -832,7 +839,7 @@ function ensureMiniMap(di){
   if(minis[di]){ minis[di].invalidateSize(); return; }
   if(!mapOK){ host.innerHTML='<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#a8a396;font-size:12px">地图组件不可用（网络原因）</div>'; return; }
   const m=L.map(host,{attributionControl:false,zoomControl:false,scrollWheelZoom:false});
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(m);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(m);
   const pts=[]; let n=0;
   S.days[di].items.forEach(it=>{
     if(!it.place||!PLACES[it.place]) return;
@@ -841,7 +848,7 @@ function ensureMiniMap(di){
     n++;
     L.marker([p.lat,p.lng],{icon:L.divIcon({className:'',iconSize:[20,20],
       html:`<span class="stopnum" style="--c:${colorOf(di)}">${n}</span>`})})
-      .addTo(m).bindPopup(`<b>${p.name}</b>`);
+      .addTo(m).bindPopup(`<b>${p.name}</b><br><a class="gnav" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat}%2C${p.lng}" target="_blank" rel="noopener">🧭 Google 地图导航</a>`);
     pts.push([p.lat,p.lng]);
   });
   if(pts.length>1) L.polyline(pts,{color:colorOf(di),weight:2,opacity:.7,dashArray:'2 7',lineCap:'round'}).addTo(m);
@@ -1041,6 +1048,7 @@ function render(){
         <div class="more">
           <span class="lbl">移到：</span>
           ${S.days.map((d2,tj)=>tj===di?'':`<button class="mv" data-t="${tj}">Day ${tj+1}</button>`).join('')||'<span class="lbl">（仅有一天）</span>'}
+          ${it.place&&PLACES[it.place]?`<button class="gnav-item">🧭 导航</button>`:''}
           <button class="danger delitem">✕ 删除</button>
         </div>`;
       el.querySelector('.chk').addEventListener('click',e=>{
@@ -1049,6 +1057,12 @@ function render(){
       el.querySelector('.up').addEventListener('click',e=>{e.stopPropagation();moveItem(di,ii,-1);});
       el.querySelector('.down').addEventListener('click',e=>{e.stopPropagation();moveItem(di,ii,1);});
       el.querySelector('.menu').addEventListener('click',e=>{e.stopPropagation();el.classList.toggle('open');});
+      const gnavBtn=el.querySelector('.gnav-item');
+      if(gnavBtn) gnavBtn.addEventListener('click',e=>{
+        e.stopPropagation();
+        const p=PLACES[it.place];
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${p.lat}%2C${p.lng}`,'_blank');
+      });
       el.querySelectorAll('.mv').forEach(b=>b.addEventListener('click',e=>{
         e.stopPropagation(); moveToDay(di,ii,+b.dataset.t);
       }));
