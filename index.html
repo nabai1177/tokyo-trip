@@ -277,6 +277,47 @@
   .plan-opt .po-btns button:hover{border-color:var(--ink);}
   .plan-opt .po-btns button.danger{flex:none;width:46px;color:var(--verm);border-color:#f0d5cd;}
 
+  /* ============ 迪士尼海洋攻略 ============ */
+  .dsn-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;scrollbar-width:none;}
+  .dsn-tabs::-webkit-scrollbar{display:none;}
+  .dsn-tabs button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:99px;
+    padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--sub);cursor:pointer;}
+  .dsn-tabs button.active{background:var(--ink);color:#f7f5f0;border-color:var(--ink);}
+  .dsn-ride{display:flex;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:13px 14px;margin-bottom:9px;box-shadow:var(--shadow);}
+  .dsn-ride.picked{border-color:#e0a89a;background:#fdf6f3;}
+  .dsn-ride .heart{border:none;background:transparent;font-size:20px;cursor:pointer;flex:none;line-height:1;padding:0 2px;}
+  .dsn-ride .grow{flex:1;min-width:0;}
+  .dsn-ride .rn{font-weight:700;font-size:14px;line-height:1.45;}
+  .dsn-ride .rn .jpn{display:block;font-size:10.5px;color:var(--sub);font-weight:400;margin-top:1px;}
+  .dsn-ride .rd{font-size:12px;color:#4c4a44;line-height:1.65;margin-top:4px;}
+  .dsn-ride .rmeta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+  .dsn-ride .tag{font-size:10px;color:#7d7970;background:#f1eee6;border-radius:6px;padding:2px 7px;}
+  .dsn-ride .tag.hot{color:var(--verm);background:#fbeae5;}
+  .dsn-ride .rtip{font-size:11.5px;color:var(--sub);line-height:1.6;margin-top:5px;}
+  .dsn-plan-item{display:flex;gap:9px;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:11px 13px;margin-bottom:8px;font-size:13px;line-height:1.6;align-items:baseline;}
+  .dsn-plan-item .tt{flex:none;min-width:40px;font-size:11px;font-weight:700;color:var(--verm);}
+  .dsn-ver{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow);}
+  .dsn-ver .vh{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;flex-wrap:wrap;}
+  .dsn-ver .vh b{font-family:var(--serif);font-size:15.5px;}
+  .dsn-ver .vh span{font-size:11px;color:var(--sub);}
+  .dsn-ver p{font-size:12px;color:#4c4a44;line-height:1.7;margin-bottom:8px;}
+  .dsn-ver .po-items{font-size:12px;line-height:1.9;color:#4c4a44;margin-bottom:10px;}
+  .dsn-info{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);}
+  .dsn-info h4{font-size:13.5px;margin-bottom:6px;}
+  .dsn-info p{font-size:12px;color:#4c4a44;line-height:1.75;}
+  .dsn-info p b{color:var(--ink);}
+  .dsn-shop{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--line);
+    border-radius:16px;padding:13px 14px;margin-bottom:9px;box-shadow:var(--shadow);}
+  .dsn-shop .grow{flex:1;min-width:0;}
+  .dsn-shop .add{flex:none;border:1px solid var(--line);background:var(--paper);border-radius:10px;
+    padding:7px 11px;font-size:11.5px;font-weight:700;cursor:pointer;color:var(--ink);white-space:nowrap;}
+  .dsn-shop .add:hover{border-color:var(--ink);}
+  .dsn-daybar{display:flex;gap:8px;align-items:center;margin:14px 0 4px;}
+  .dsn-daybar select{flex:1;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;
+    background:var(--card);color:var(--ink);}
+
   /* ============ 底部导航 ============ */
   #bottomnav{display:flex;position:fixed;left:50%;transform:translateX(-50%);
     bottom:calc(env(safe-area-inset-bottom) + 12px);z-index:800;
@@ -328,7 +369,7 @@
 <body>
 
 <header>
-  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v5.2</span></div>
+  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.0</span></div>
   <span class="spacer"></span>
   <span class="chip" id="countdown"></span>
   <button class="iconbtn" id="btn-sync" title="云同步">☁️<span class="dot" id="sync-dot"></span></button>
@@ -358,6 +399,7 @@
       <button data-view="pack">🎒 行李</button>
       <button data-view="shop">🛍️ 购物</button>
       <button data-view="money">💰 记账</button>
+      <button data-view="dsn">🏰 迪士尼</button>
     </div>
     <!-- 地图 -->
     <section class="view on" id="view-map">
@@ -409,6 +451,20 @@
       </div>
     </section>
   </div>
+  <!-- 迪士尼海洋攻略 -->
+  <section class="view" id="view-dsn">
+    <div class="panel">
+      <h3>迪士尼海洋攻略</h3><div class="sub">9/25 海洋日专用 · 基于 2025–26 常规运营整理，开园时间/价格以当日官方 App 为准</div>
+      <div class="dsn-tabs" id="dsn-tabs">
+        <button data-t="plan" class="active">玩法版本</button>
+        <button data-t="rides">项目图鉴</button>
+        <button data-t="my">我的攻略</button>
+        <button data-t="buy">购物美食</button>
+        <button data-t="info">票务须知</button>
+      </div>
+      <div id="dsn-body"></div>
+    </div>
+  </section>
 </main>
 
 <!-- 云同步 -->
@@ -461,6 +517,7 @@
   <button data-view="pack"><span class="ic">🎒</span>行李</button>
   <button data-view="shop"><span class="ic">🛍️</span>购物</button>
   <button data-view="money"><span class="ic">💰</span>记账</button>
+  <button data-view="dsn"><span class="ic">🏰</span>迪士尼</button>
 </nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -571,6 +628,102 @@ const PLANS={
   ],
 };
 
+/* ================= 迪士尼海洋攻略数据 ================= */
+const DSN_PORTS=[
+  {name:"地中海港湾", desc:"入口区域，夜秀在这是"},
+  {name:"神秘岛", desc:"火山里的重头戏"},
+  {name:"美人鱼礁湖", desc:"室内童话水世界"},
+  {name:"阿拉伯海岸", desc:"阿拉丁主题区"},
+  {name:"失落河三角洲", desc:"印地安纳考古丛林"},
+  {name:"发现港", desc:"未来感港湾"},
+  {name:"美国海滨", desc:"复古纽约+玩具总动员"},
+  {name:"幻想泉源", desc:"2024 新区，冰雪奇缘/长发公主/小飞侠"},
+];
+const DSN_RIDES=[
+  {id:"frozen", port:"幻想泉源", name:"安娜与艾莎的冰雪旅程", jp:"アナ&エルサのフローズンジャーニー", thrill:1, dpa:2000, pop:3,
+   desc:"乘船进入冰雪王国，实景+无轨黑科技，全球独一份，目前全园最抢手。",
+   tip:"开园第一优先；App 抢 DPA 或 Standby Pass，抢不到就排在最后用关园前时间。"},
+  {id:"rapunzel", port:"幻想泉源", name:"乐佩的天灯节", jp:"ラプンツェルのランタンフェスティバル", thrill:1, dpa:2000, pop:3,
+   desc:"小船漂进天灯海，实景美到词穷，全乐园最出片项目。",
+   tip:"和冰雪旅程二选一先抢，天灯海在最后一段，别错过拍照。"},
+  {id:"peterpan", port:"幻想泉源", name:"小飞侠的梦幻岛冒险", jp:"ピーターパンのネバーランドアドベンチャー", thrill:2, dpa:2000, pop:2,
+   desc:"飞行感极强的黑暗骑乘，体积感和沉浸感拉满。"},
+  {id:"tinker", port:"幻想泉源", name:"小叮当的忙碌车车", jp:"ティンカー・ベルのビジーバギー", thrill:0, dpa:700, pop:1,
+   desc:"轻松的童话小车，适合顺路刷。"},
+  {id:"oaken", port:"幻想泉源", name:"奥肯的滑动雪橇", jp:"オーケンズ・スライディングスレイ", thrill:1, dpa:1000, pop:2,
+   desc:"冰雪小镇背景的室外小过山车，轻松愉快。"},
+  {id:"jttce", port:"神秘岛", name:"地心探险之旅", jp:"センター・オブ・ジ・アース", thrill:3, dpa:1800, pop:3,
+   desc:"火山内部过山车，海洋镇园之宝，速度与氛围双顶配。",
+   tip:"DPA 手慢无，建议和冰雪旅程一起作为开园第一、第二顺位。"},
+  {id:"nautilus", port:"神秘岛", name:"海底两万里", jp:"海底2万マイル", thrill:1, dpa:700, pop:1,
+   desc:"小艇潜入海底世界，氛围党必玩；排队栈道较晒。"},
+  {id:"soaring", port:"地中海港湾", name:"翱翔·梦幻奇航", jp:"ソアリン：ファンタスティック・フライト", thrill:1, dpa:1500, pop:3,
+   desc:"悬挂式飞行影院，滑翔翼视角环游世界地标，配乐起鸡皮疙瘩。",
+   tip:"开园即买 DPA；白玩两不误的兜底项。"},
+  {id:"gondola", port:"地中海港湾", name:"威尼斯贡多拉", jp:"ベネチアン・ゴンドラ", thrill:0, dpa:0, pop:1,
+   desc:"船夫会唱歌的贡多拉游船，随手拍都好看，几乎不排队。"},
+  {id:"indy", port:"失落河三角洲", name:"印第安纳琼斯·水晶骷髅头魔宫", jp:"インディ・ジョーンズ・アドベンチャー", thrill:3, dpa:1800, pop:3,
+   desc:"吉普车闯神庙，黑暗+急坠+冲撞，海洋最刺激之一，人气常青。",
+   tip:"身高限制 117cm；人多时 DPA 性价比最高。"},
+  {id:"raging", port:"失落河三角洲", name:"怒神过山车", jp:"レイジングスピリッツ", thrill:3, dpa:1000, pop:2,
+   desc:"360°回环+水花四溅的过山车，刺激党的续摊项目。",
+   tip:"身高限制 117cm；会湿身，包要寄存。"},
+  {id:"tsm", port:"美国海滨", name:"玩具总动员疯狂游戏屋", jp:"トイ・ストーリー・マニア！", thrill:1, dpa:1500, pop:3,
+   desc:"4D 射击游戏屋，两人对战欢乐爆表，人气 Top3。",
+   tip:"双人同玩分数更热闹，眼镜挂好别弄丢。"},
+  {id:"tot", port:"美国海滨", name:"惊魂古塔", jp:"タワー・オブ・テラー", thrill:3, dpa:1800, pop:3,
+   desc:"免费落体塔， Tokyo 版有原创幽灵故事，落下感比想象狠。",
+   tip:"无身高限制但胆小勿试；坐后排更刺激。"},
+  {id:"nemo", port:"发现港", name:"尼莫&朋友的海底骑士", jp:"ニモ&フレンズ・シーライダー", thrill:1, dpa:700, pop:1,
+   desc:"飞行模拟器潜入深海追鲸鲨，画面可爱，适合歇脚。"},
+  {id:"aquatopia", port:"发现港", name:"水上漫游气垫船", jp:"アクアトピア", thrill:2, dpa:700, pop:1,
+   desc:"无轨道气垫船在水面上乱漂，突然钻进水帘，夏天超解暑。"},
+  {id:"railway", port:"发现港", name:"迪士尼海洋电气化铁路", jp:"ディズニーシー・エレクトリックレールウェイ", thrill:0, dpa:0, pop:1,
+   desc:"发现港⇄美国海滨的复古小火车，代步+看海景两不误。"},
+  {id:"triton", port:"美人鱼礁湖", name:"特里同音乐会", jp:"キング・トリトンのコンサート", thrill:0, dpa:0, pop:2,
+   type:"show", desc:"爱丽儿现场 Live 演唱会，室内冷气，场次制。",
+   tip:"提前看 App 当日场次，提前 15-20 分钟入场。"},
+  {id:"flounder", port:"美人鱼礁湖", name:"小比目鱼飞车", jp:"フランダーのフライングフィッシュコースター", thrill:1, dpa:0, pop:1,
+   desc:"迷你过山车，室内彩色水世界，亲子和软萌党友好。"},
+  {id:"jelly", port:"美人鱼礁湖", name:"水母跳跳", jp:"ジャンピン・ジェリーフィッシュ", thrill:1, dpa:0, pop:1,
+   desc:"水母造型跳楼机，轻度失重，拍全景很好看。"},
+  {id:"jasmine", port:"阿拉伯海岸", name:"茉莉公主的飞行地毡", jp:"ジャスミンのフライングカーペット", thrill:1, dpa:0, pop:1,
+   desc:"旋转飞毯，可控制升降，夕阳时最出片。"},
+  {id:"caravan", port:"阿拉伯海岸", name:"魔法车厢旋转木马", jp:"キャラバンカルーセル", thrill:0, dpa:0, pop:1,
+   desc:"双层复古旋转木马，上层视野好。"},
+  {id:"magiclamp", port:"阿拉伯海岸", name:"魔法神灯剧场", jp:"マジックランプシアター", thrill:0, dpa:0, pop:1,
+   type:"show", desc:"神灯精灵舞台秀，冷气房歇脚好去处。"},
+];
+const DSN_VERSIONS=[
+  {badge:"A",title:"刷爆人气版",desc:"适合：第一次来、体力足、愿意冲。开园两小时定生死。",
+   picks:["frozen","jttce","indy","tsm","soaring","tot","rapunzel"],
+   extra:"开园直奔幻想泉源抢冰雪旅程，同步在 App 买地心探险 DPA；用完一张再买下一张（印地→玩具总动员→惊魂古塔）。"},
+  {badge:"B",title:"氛围美食慢游版",desc:"适合：去过迪士尼、想拍照吃吃逛逛的人。",
+   picks:["gondola","nautilus","railway","nemo","magiclamp","triton","rapunzel"],
+   extra:"上午神秘岛+美人鱼礁湖，中午饺子香肠包+火鸡腿，下午贡多拉+气垫船，傍晚天灯节，晚上占位看夜港秀。"},
+  {badge:"C",title:"轻松省力版",desc:"适合：想少走路少排队、室内为主、玩得舒服。",
+   picks:["flounder","jelly","triton","jasmine","caravan","magiclamp","nemo","gondola"],
+   extra:"全程避开最热门项目，以室内剧场+轻型项目为主，中午好好吃一顿，傍晚看夜秀收尾。"},
+];
+const DSN_BUY=[
+  {id:"resortline",name:"度假区线 记念乘车券",jp:"ディズニーリゾートライン 記念きっぷ",price:700,
+   note:"就是小火车纪念票！季节限定图案的乘车券，车站窗口/自动售票机有售，坐一程顺便收藏，圈外粉丝也常收。"},
+  {id:"duffy",name:"达菲&朋友们 季节限定玩偶",jp:"ダッフィー&フレンズ",price:3500,
+   note:"星黛露/玲娜贝儿人气最高，新品发售日排长队；背包挂件更轻便好带。"},
+  {id:"bucket",name:"限定爆米花桶",jp:"ポップコーンバケット",price:2600,
+   note:"款式季季换（米奇头/达菲/反派），桶可反复续爆米花更划算。"},
+  {id:"anniv",name:"海洋25周年纪念商品",jp:"2026.9.4~25周年",price:3000,
+   note:"你的行程正好赶上 25 周年期间！徽章/挂件/文具都有纪念款，入园先看 App 商店地图。"},
+  {id:"halloween",name:"万圣节期间限定周边",jp:"ハロウィン限定",price:2000,
+   note:"9 月中旬起进入万圣节季，反派系列周边+南瓜限定美食。"},
+  {id:"gyoza",name:"饺子香肠包",jp:"ギョウザソーセージバン",price:450,
+   note:"神秘岛名物小吃，开园人少时先吃一波，不然队伍很长。"},
+  {id:"turkey",name:"火鸡腿",jp:"ターキーレッグ",price:750,
+   note:"失落河三角洲，比脸大的拍照神器，两人分一根刚好。"},
+  {id:"churro",name:"限定口味吉拿棒",jp:"チュロス",price:400,
+   note:"口味随季节换（咖喱/草莓/奶茶…），各卖点口味不同，可以打卡多个。"},
+];
+
 /* ================= 默认数据 ================= */
 const DEFAULT_SHOPPING = [
   {name:"宣传册 パンフレット", jp:"A4", price:3500, qty:1, done:false, cat:"通販"},
@@ -659,6 +812,7 @@ try{
 }catch(e){ S=JSON.parse(JSON.stringify(DEFAULT_STATE)); }
 if(typeof S.updatedAt!=="number") S.updatedAt=0;
 if(!Array.isArray(S.myPlans)) S.myPlans=[];
+if(!Array.isArray(S.dsnPicks)) S.dsnPicks=[];
 
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const colorOf=i=>DAY_HEX[i%DAY_HEX.length];
@@ -953,6 +1107,143 @@ document.getElementById('plan-save').addEventListener('click',()=>{
   save(); renderPlanSheet();
 });
 
+/* ================= 迪士尼海洋攻略 ================= */
+let dsnTab='plan';
+function dsnPicked(){ return DSN_RIDES.filter(r=>S.dsnPicks.includes(r.id)); }
+function dsnPortIdx(p){ return DSN_PORTS.findIndex(x=>x.name===p); }
+function renderDsn(){
+  const body=document.getElementById('dsn-body'); if(!body) return;
+  document.querySelectorAll('#dsn-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.t===dsnTab));
+  if(dsnTab==='plan') body.innerHTML=dsnPlanHTML();
+  else if(dsnTab==='rides') body.innerHTML=dsnRidesHTML();
+  else if(dsnTab==='my') body.innerHTML=dsnMyHTML();
+  else if(dsnTab==='buy') body.innerHTML=dsnBuyHTML();
+  else body.innerHTML=dsnInfoHTML();
+}
+function dsnPlanHTML(){
+  const n=S.dsnPicks.length;
+  return DSN_VERSIONS.map(v=>`
+    <div class="dsn-ver">
+      <div class="vh"><b>方案 ${v.badge} · ${esc(v.title)}</b><span>含 ${v.picks.length} 个推荐项目</span></div>
+      <p>${esc(v.desc)}</p>
+      <div class="po-items">${v.picks.map(id=>{const r=DSN_RIDES.find(x=>x.id===id);return r?`<div>· ${esc(r.name)}</div>`:'';}).join('')}</div>
+      <div class="po-btns"><button class="primary" data-act="ver" data-id="${v.badge}">✓ 一键选这套，生成攻略</button></div>
+    </div>`).join('')+
+    `<div class="plans-tip">已选 ${n} 个项目${n?'，去「我的攻略」查看自动生成的路线':''}；也可以到「项目图鉴」自己挑。</div>`;
+}
+function dsnRidesHTML(){
+  return DSN_PORTS.map(port=>{
+    const rides=DSN_RIDES.filter(r=>r.port===port.name);
+    if(!rides.length) return '';
+    return `<div class="sec-label">${esc(port.name)} · ${esc(port.desc)}</div>`+rides.map(r=>{
+      const picked=S.dsnPicks.includes(r.id);
+      return `<div class="dsn-ride ${picked?'picked':''}" data-id="${r.id}">
+        <button class="heart" data-act="heart" data-id="${r.id}" title="选入我的攻略">${picked?'❤️':'🤍'}</button>
+        <div class="grow">
+          <div class="rn">${esc(r.name)}<span class="jpn">${esc(r.jp)}</span></div>
+          <div class="rd">${esc(r.desc)}</div>
+          <div class="rmeta">
+            ${r.dpa?`<span class="tag hot">DPA ¥${r.dpa}</span>`:''}
+            ${r.pop>=3?'<span class="tag hot">超人气</span>':r.pop===2?'<span class="tag">人气</span>':''}
+            <span class="tag">${r.thrill>=3?'刺激⚡⚡⚡':r.thrill===2?'轻度刺激⚡⚡':'轻松⚡'}</span>
+            ${r.type==='show'?'<span class="tag">演出</span>':''}
+          </div>
+          ${r.tip?`<div class="rtip">💡 ${esc(r.tip)}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }).join('')+`<div class="plans-tip">点 ❤️ 收藏想要玩的项目，然后到「我的攻略」一键生成专属路线。</div>`;
+}
+function dsnGeneratePlan(){
+  const picked=dsnPicked().slice().sort((a,b)=>dsnPortIdx(a.port)-dsnPortIdx(b.port));
+  if(!picked.length) return [];
+  const slots=['开园','上午','中午','下午','傍晚','晚间'];
+  const rest=picked.slice(1), items=[{time:'开园',ride:picked[0],note:'开园直奔，最想要的一个！'}];
+  rest.forEach((r,i)=>{
+    const slot=slots[1+Math.floor(i/rest.length*Math.min(rest.length,5))]||'下午';
+    // 均匀铺到上午~晩间
+    const pos=slots[1+Math.min(4,Math.floor(i/rest.length*5))];
+    items.push({time:pos,ride:r,note:''});
+  });
+  return items;
+}
+function dsnMyHTML(){
+  const picked=dsnPicked();
+  if(!picked.length) return `<div class="plans-tip">还没选项目。去<b>「项目图鉴」</b>点 ❤️ 挑你喜欢的，或回<b>「玩法版本」</b>一键选一套。</div>`;
+  const plan=dsnGeneratePlan();
+  const dpaPicks=picked.filter(r=>r.dpa).sort((a,b)=>b.dpa-a.dpa);
+  const html=[];
+  if(dpaPicks.length) html.push(`<div class="dsn-info"><h4>🎫 DPA 购买顺序</h4><p>开园入园后<b>第一时间</b>在官方 App 买 <b>${esc(dpaPicks[0].name)}（¥${dpaPicks[0].dpa}）</b>的 DPA；用完之后按 <b>${dpaPicks.slice(1,4).map(r=>esc(r.name)).join(' → ')||'—'}</b> 的顺序接着买。价格随时段浮动，以 App 为准。</p></div>`);
+  html.push(`<div class="sec-label">我 的 专 属 路 线</div>`);
+  html.push(plan.map(p=>`
+    <div class="dsn-plan-item"><span class="tt">${esc(p.time)}</span>
+      <span style="flex:1"><b>${esc(p.ride.name)}</b>${p.note?`<br><span style="font-size:11.5px;color:var(--sub)">${esc(p.note)}</span>`:''}
+      ${p.ride.tip?`<br><span style="font-size:11.5px;color:var(--sub)">💡 ${esc(p.ride.tip)}</span>`:''}</span>
+    </div>`).join(''));
+  html.push(`<div class="dsn-info"><h4>🍖 顺手安插的吃喝打卡</h4><p>中午：神秘岛<b>饺子香肠包</b>或失落河三角洲<b>火鸡腿</b>；下午：任意卖点<b>限定吉拿棒</b>；各爆米花车口味不同，挑桶也挑味。</p></div>`);
+  html.push(`<div class="dsn-info"><h4>🌙 收尾</h4><p>闭园前 40-60 分钟到<b>地中海港湾</b>占位看夜港秀（Believe! Sea of Dreams，如当日有场次）；离园前在<b>度假区线车站</b>买一张<b>记念乘车券</b>收藏。</p></div>`);
+  const defaultDay=Math.max(0,S.days.findIndex(d=>d.title.includes('迪士尼')));
+  html.push(`<div class="dsn-daybar">
+    <select id="dsn-day">${S.days.map((d,i)=>`<option value="${i}" ${i===defaultDay?'selected':''}>Day ${i+1} · ${esc(d.title)}</option>`).join('')}</select>
+    <button class="btn" data-act="apply" style="flex:none;padding:10px 16px;">＋ 加入行程</button>
+    <button class="btn sec" data-act="clear" style="flex:none;padding:10px 14px;">清空选择</button>
+  </div>`);
+  return html.join('');
+}
+function dsnBuyHTML(){
+  return DSN_BUY.map(b=>`
+    <div class="dsn-shop">
+      <div class="grow"><div class="rn" style="font-weight:700;font-size:14px;">${esc(b.name)} <span class="tag hot" style="font-size:10px;border-radius:6px;padding:2px 7px;color:var(--verm);background:#fbeae5;display:inline-block;">约 ¥${b.price}</span></div>
+      <div class="jpn" style="font-size:10.5px;color:var(--sub);margin-top:1px;">${esc(b.jp)}</div>
+      <div class="rd" style="font-size:12px;color:#4c4a44;line-height:1.65;margin-top:4px;">${esc(b.note)}</div></div>
+      <button class="add" data-act="addshop" data-id="${b.id}">＋购物清单</button>
+    </div>`).join('')+`<div class="plans-tip">加入后到「🛍️ 购物」页改数量/单价，总价自动算。</div>`;
+}
+function dsnInfoHTML(){
+  return `
+  <div class="dsn-info"><h4>🎟️ 门票怎么买</h4><p><b>1日护照</b>：¥7,900–10,900 按日期浮动，节假日最贵；<b>星光护照</b>：周末节假日 15:00 后入场，便宜约 15%；<b>After 6 护照</b>：18:00 后入场，约 ¥4,600–6,500。<br>海洋和陆地是<b>分开的票</b>，别买错。官网/官方 App 提前买，入园扫码。</p></div>
+  <div class="dsn-info"><h4>📱 官方 App 必装</h4><p><b>Tokyo Disney Resort App</b>：入园二维码、DPA 购买、演出抽选（Entry Request）、Standby Pass 领取、实时排队时间全靠它。<b>提前下载注册好，当天现弄来不及。</b></p></div>
+  <div class="dsn-info"><h4>⚡ DPA / Standby Pass</h4><p><b>DPA（付费快速通行）</b>：¥700–2,000/项，App 购买，热门项开园秒没；<b>Standby Pass（免费）</b>：部分项目/时段需领取才能排队。幻想泉源新区规则可能随时调整，<b>以开园当天 App 显示为准</b>。</p></div>
+  <div class="dsn-info"><h4>🚝 度假区线小火车</h4><p>舞滨站→度假区终点站往海洋方向；度假区线环线单程 ¥260。车站有<b>季节图案记念乘车券</b>，票+明信片套装，收藏必入。</p></div>
+  <div class="dsn-info"><h4>🎉 你去的时机</h4><p><b>2026.9.4 起 25 周年</b>纪念活动期间 + 9 月中旬起<b>万圣节季</b>：双重限定周边/美食/装饰，人流也会比平日大，热门 DPA 要抢快。</p></div>
+  <div class="dsn-info"><h4>📦 行前准备清单</h4><p>提前购票→下载 App 注册→充电宝（App 全天要刷）→防晒/雨具→舒服的鞋。园区内可寄存行李，水和零食可带入园（需无需加热的）。</p></div>`;
+}
+function dsnApplyToDay(){
+  const dayIdx=+document.getElementById('dsn-day').value;
+  const day=S.days[dayIdx]; if(!day) return;
+  dsnGeneratePlan().forEach(p=>{
+    day.items.push({time:p.time,name:p.ride.name,note:p.ride.tip||'',place:'disneysea',done:false});
+  });
+  save(); renderAll();
+  alert(`已把 ${dsnPicked().length} 个项目加入 Day ${dayIdx+1}，地图路线已同步更新！`);
+}
+document.getElementById('dsn-tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-t]'); if(!b) return;
+  dsnTab=b.dataset.t; renderDsn();
+});
+document.getElementById('dsn-body').addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act;
+  if(act==='heart'){
+    const id=b.dataset.id, i=S.dsnPicks.indexOf(id);
+    if(i>=0) S.dsnPicks.splice(i,1); else S.dsnPicks.push(id);
+    save(); renderDsn();
+  }else if(act==='ver'){
+    const v=DSN_VERSIONS.find(x=>x.badge===b.dataset.id);
+    if(v){ S.dsnPicks=v.picks.slice(); save(); dsnTab='my'; renderDsn(); }
+  }else if(act==='addshop'){
+    const d=DSN_BUY.find(x=>x.id===b.dataset.id);
+    if(d){
+      const exist=S.shopping.find(x=>x.name===d.name);
+      if(exist){ exist.qty=(exist.qty||0)+1; }
+      else S.shopping.push({name:d.name,jp:d.jp,price:d.price,qty:1,done:false,cat:"迪士尼",note:d.note});
+      save(); renderShop();
+      b.textContent='✓ 已加入'; setTimeout(()=>{b.textContent='＋购物清单';},1200);
+    }
+  }else if(act==='apply'){ dsnApplyToDay(); }
+  else if(act==='clear'){ S.dsnPicks=[]; save(); renderDsn(); }
+});
+
 /* ================= 视图切换 ================= */
 let curView="plan", rightView="map";
 function setView(v){
@@ -1134,6 +1425,7 @@ function render(){
   renderLegend();
   refreshMarkers();
   renderPack(); renderShop(); renderExp();
+  renderDsn();
 }
 function dropIndex(list,y){
   const els=[...list.querySelectorAll('.item')].filter(el=>!el.classList.contains('dragging'));
