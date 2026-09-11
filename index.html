@@ -388,7 +388,7 @@
 <body>
 
 <header>
-  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.2</span></div>
+  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.3</span></div>
   <span class="spacer"></span>
   <span class="chip" id="countdown"></span>
   <button class="iconbtn" id="btn-sync" title="云同步">☁️<span class="dot" id="sync-dot"></span></button>
@@ -538,8 +538,8 @@
     <div class="sheet-head"><h3>📍 添加地点</h3><span class="spacer"></span>
       <button id="pl-close">✕</button></div>
     <div class="sync-sec">
-      <h4>① 搜索坐标</h4>
-      <p>输入酒店/地点名称（建议带区域，如「新浦安 酒店」），点结果自动填坐标。搜不到也可在 Google 地图长按位置后手动填。</p>
+      <h4>① 搜索坐标（点结果直接上地图）</h4>
+      <p>输入酒店/地点名称（建议带区域，如「新浦安 酒店」），点击结果即自动保存并在地图上显示。搜不到就用下面②手动填。</p>
       <div class="btnrow">
         <input type="text" id="pl-q" placeholder="如：オリエンタルホテル東京ベイ">
         <button class="btn" id="pl-search" style="flex:none;padding:11px 16px;">搜索</button>
@@ -547,7 +547,7 @@
       <div id="pl-results"></div>
     </div>
     <div class="sync-sec">
-      <h4>② 确认信息</h4>
+      <h4>② 手动填坐标（备用）</h4>
       <div class="btnrow" style="margin-bottom:10px;">
         <input type="text" id="pl-name" placeholder="地点名称（行程和地图上显示）" style="flex:2;">
       </div>
@@ -1699,6 +1699,23 @@ async function geoFetch(q){
     return j.features.map(f=>({name:[f.properties.name,f.properties.city,f.properties.state].filter(Boolean).join(', '),lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0]}));
   return null;
 }
+function savePlace(name,lat,lng){
+  const key='c'+Date.now().toString(36);
+  const p={name, lat:+lat.toFixed(5), lng:+lng.toFixed(5)};
+  PLACES[key]=p; S.places[key]=p; save(); refreshMarkers(); renderMapDay();
+  return key;
+}
+function pulsePlace(key){
+  if(!mapOK) return;
+  const p=PLACES[key];
+  map.flyTo([p.lat,p.lng],15,{duration:.8});
+  setTimeout(()=>{
+    if(markers[key]){ markers[key].openPopup();
+      const pin=document.getElementById('pin-'+key);
+      if(pin){pin.classList.remove('pulse');void pin.offsetWidth;pin.classList.add('pulse');}
+    }
+  },850);
+}
 async function plSearch(){
   const q=document.getElementById('pl-q').value.trim(); if(!q) return;
   const box=document.getElementById('pl-results');
@@ -1708,21 +1725,17 @@ async function plSearch(){
   if(!arr){ box.innerHTML='<div class="pl-hint">搜索服务连不上（大陆网络经常访问不了地理编码服务，到日本后可重试）。<br>也可以：打开 Google 地图 → 长按目标位置 → 复制坐标，手动填到下面保存。</div>'; return; }
   box.innerHTML=arr.map(a=>`<button class="pl-res" data-lat="${a.lat}" data-lng="${a.lng}">${esc(a.name)}</button>`).join('');
   box.querySelectorAll('.pl-res').forEach(b=>b.addEventListener('click',()=>{
-    document.getElementById('pl-lat').value=(+b.dataset.lat).toFixed(5);
-    document.getElementById('pl-lng').value=(+b.dataset.lng).toFixed(5);
-    if(!document.getElementById('pl-name').value.trim())
-      document.getElementById('pl-name').value=b.textContent.split(',')[0].trim();
-    box.innerHTML='<div class="pl-hint">已选定坐标 ✓ 补充/修改名称后保存</div>';
+    const key=savePlace(b.textContent.split(',')[0].trim(), +b.dataset.lat, +b.dataset.lng);
+    document.getElementById('place-sheet').style.display='none';
+    pulsePlace(key);
   }));
 }
 function plSave(){
   const name=document.getElementById('pl-name').value.trim();
   const lat=parseFloat(document.getElementById('pl-lat').value), lng=parseFloat(document.getElementById('pl-lng').value);
   if(!name){ alert('请填地点名称'); return; }
-  if(isNaN(lat)||isNaN(lng)||lat<-90||lat>90||lng<-180||lng>180){ alert('坐标不对，请先搜索或手动填写'); return; }
-  const key='c'+Date.now().toString(36);
-  const p={name, lat:+lat.toFixed(5), lng:+lng.toFixed(5)};
-  PLACES[key]=p; S.places[key]=p; save(); refreshMarkers(); renderMapDay();
+  if(isNaN(lat)||isNaN(lng)||lat<-90||lat>90||lng<-180||lng>180){ alert('坐标不对，请检查后重试'); return; }
+  savePlace(name,lat,lng);
   document.getElementById('place-sheet').style.display='none';
   document.getElementById('pl-name').value=''; document.getElementById('pl-lat').value=''; document.getElementById('pl-lng').value='';
   alert('已添加「'+name+'」，现在可以在行程里选它了 ✓');
