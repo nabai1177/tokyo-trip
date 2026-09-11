@@ -224,7 +224,7 @@
     letter-spacing:3px;background:#f1eee6;border-radius:14px;padding:14px;margin-bottom:10px;}
 
   /* ============ 自定义地点 ============ */
-  #btn-addplace{position:absolute;z-index:650;top:14px;left:14px;border:1px solid var(--line);
+  #btn-addplace{position:absolute;z-index:800;top:14px;left:14px;border:1px solid var(--line);
     background:rgba(255,253,249,.95);border-radius:99px;padding:8px 14px;font-size:12px;font-weight:600;
     cursor:pointer;color:var(--ink);box-shadow:var(--shadow);backdrop-filter:blur(8px);}
   #btn-addplace:hover{border-color:var(--ink);}
@@ -388,7 +388,7 @@
 <body>
 
 <header>
-  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.3</span></div>
+  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.4</span></div>
   <span class="spacer"></span>
   <span class="chip" id="countdown"></span>
   <button class="iconbtn" id="btn-sync" title="云同步">☁️<span class="dot" id="sync-dot"></span></button>
@@ -961,11 +961,12 @@ function refreshMarkers(){
   for(const key of Object.keys(PLACES)){
     const p=PLACES[key];
     const used=S.days.map((d,i)=>d.items.some(it=>it.place===key)?i:-1).filter(i=>i>=0);
-    if(!used.length) continue;
+    if(!used.length && !S.places[key]) continue;  // 内置地点被引用才显示；自定义地点始终显示
     const icon=L.divIcon({className:'',iconSize:[14,14],
-      html:`<span class="pin" id="pin-${key}" style="--c:${colorOf(used[0])}"></span>`});
+      html:`<span class="pin" id="pin-${key}" style="--c:${colorOf(used[0]??9)}"></span>`});
     const m=L.marker([p.lat,p.lng],{icon}).addTo(map);
-    m.bindPopup(`<b>${p.name}</b><br><span style="color:#888;font-size:12px">Day ${used.map(i=>i+1).join(' / ')}</span><br><a class="gnav" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat}%2C${p.lng}" target="_blank" rel="noopener">🧭 Google 地图导航</a>`);
+    const dayInfo=used.length?`Day ${used.map(i=>i+1).join(' / ')}`:'自定义地点';
+    m.bindPopup(`<b>${p.name}</b><br><span style="color:#888;font-size:12px">${dayInfo}</span><br><a class="gnav" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat}%2C${p.lng}" target="_blank" rel="noopener">🧭 Google 地图导航</a>`);
     markers[key]=m;
   }
   drawLines();
