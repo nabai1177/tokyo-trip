@@ -224,7 +224,7 @@
     letter-spacing:3px;background:#f1eee6;border-radius:14px;padding:14px;margin-bottom:10px;}
 
   /* ============ 自定义地点 ============ */
-  #btn-addplace{position:absolute;z-index:600;top:14px;left:14px;border:1px solid var(--line);
+  #btn-addplace{position:absolute;z-index:650;top:14px;left:14px;border:1px solid var(--line);
     background:rgba(255,253,249,.95);border-radius:99px;padding:8px 14px;font-size:12px;font-weight:600;
     cursor:pointer;color:var(--ink);box-shadow:var(--shadow);backdrop-filter:blur(8px);}
   #btn-addplace:hover{border-color:var(--ink);}
@@ -388,7 +388,7 @@
 <body>
 
 <header>
-  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.1</span></div>
+  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.2</span></div>
   <span class="spacer"></span>
   <span class="chip" id="countdown"></span>
   <button class="iconbtn" id="btn-sync" title="云同步">☁️<span class="dot" id="sync-dot"></span></button>
@@ -398,6 +398,7 @@
   <button class="iconbtn hplain" id="btn-reset" title="恢复默认">↺</button>
   <button class="iconbtn menu-only" id="btn-menu">⋯</button>
   <div id="menu">
+  <button id="m-addplace">📍 添加地点</button>
     <button id="m-export">📤 导出数据</button>
     <button id="m-import">📥 导入数据</button>
     <button id="m-print">🖨️ 打印 / 存 PDF</button>
@@ -949,7 +950,7 @@ function renderSyncUI(){
 let mapOK=false, map=null;
 let markers={}, lines=[], dayOn=S.days.map(()=>true);
 try{
-  map=L.map('map',{attributionControl:false}).setView([35.65,139.78],11);
+  map=L.map('map',{attributionControl:false,zoomControl:false}).setView([35.65,139.78],11);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
   mapOK=true;
 }catch(e){ console.warn('地图不可用：',e.message); }
@@ -1684,23 +1685,35 @@ function renderPlaceMine(){
     delete PLACES[k]; delete S.places[k]; save(); refreshMarkers(); renderPlaceMine();
   }));
 }
+async function geoFetch(q){
+  // 双源：Nominatim → Photon，各自 12 秒超时（大陆网络可能两个都连不上，给出提示）
+  const tryFetch=async(url)=>{
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),12000);
+    try{ const r=await fetch(url,{signal:ctrl.signal}); clearTimeout(t); if(!r.ok) return null; return await r.json(); }
+    catch(e){ clearTimeout(t); return null; }
+  };
+  const a=await tryFetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&accept-language=zh&q='+encodeURIComponent(q+' 日本'));
+  if(Array.isArray(a)&&a.length) return a.map(x=>({name:x.display_name,lat:+x.lat,lng:+x.lon}));
+  const j=await tryFetch('https://photon.komoot.io/api/?limit=5&q='+encodeURIComponent(q));
+  if(j&&Array.isArray(j.features)&&j.features.length)
+    return j.features.map(f=>({name:[f.properties.name,f.properties.city,f.properties.state].filter(Boolean).join(', '),lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0]}));
+  return null;
+}
 async function plSearch(){
   const q=document.getElementById('pl-q').value.trim(); if(!q) return;
   const box=document.getElementById('pl-results');
   box.innerHTML='<div class="pl-hint">搜索中…</div>';
-  try{
-    const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&accept-language=zh&q='+encodeURIComponent(q+' 日本'));
-    const arr=await r.json();
-    if(!Array.isArray(arr)||!arr.length){ box.innerHTML='<div class="pl-hint">没找到，试试更完整的名称（加区域/日文原名）</div>'; return; }
-    box.innerHTML=arr.map(a=>`<button class="pl-res" data-lat="${a.lat}" data-lng="${a.lon}">${esc(a.display_name)}</button>`).join('');
-    box.querySelectorAll('.pl-res').forEach(b=>b.addEventListener('click',()=>{
-      document.getElementById('pl-lat').value=(+b.dataset.lat).toFixed(5);
-      document.getElementById('pl-lng').value=(+b.dataset.lng).toFixed(5);
-      if(!document.getElementById('pl-name').value.trim())
-        document.getElementById('pl-name').value=b.textContent.split(',')[0].trim();
-      box.innerHTML='<div class="pl-hint">已选定坐标 ✓ 补充/修改名称后保存</div>';
-    }));
-  }catch(e){ box.innerHTML='<div class="pl-hint">搜索失败（网络原因）。可在 Google 地图长按目标位置读坐标，手动填到下面。</div>'; }
+  let arr=null;
+  try{ arr=await geoFetch(q); }catch(e){}
+  if(!arr){ box.innerHTML='<div class="pl-hint">搜索服务连不上（大陆网络经常访问不了地理编码服务，到日本后可重试）。<br>也可以：打开 Google 地图 → 长按目标位置 → 复制坐标，手动填到下面保存。</div>'; return; }
+  box.innerHTML=arr.map(a=>`<button class="pl-res" data-lat="${a.lat}" data-lng="${a.lng}">${esc(a.name)}</button>`).join('');
+  box.querySelectorAll('.pl-res').forEach(b=>b.addEventListener('click',()=>{
+    document.getElementById('pl-lat').value=(+b.dataset.lat).toFixed(5);
+    document.getElementById('pl-lng').value=(+b.dataset.lng).toFixed(5);
+    if(!document.getElementById('pl-name').value.trim())
+      document.getElementById('pl-name').value=b.textContent.split(',')[0].trim();
+    box.innerHTML='<div class="pl-hint">已选定坐标 ✓ 补充/修改名称后保存</div>';
+  }));
 }
 function plSave(){
   const name=document.getElementById('pl-name').value.trim();
@@ -1714,6 +1727,7 @@ function plSave(){
   document.getElementById('pl-name').value=''; document.getElementById('pl-lat').value=''; document.getElementById('pl-lng').value='';
   alert('已添加「'+name+'」，现在可以在行程里选它了 ✓');
 }
+document.getElementById('m-addplace').addEventListener('click',()=>{menu.classList.remove('open');openPlaceSheet();});
 document.getElementById('btn-addplace').addEventListener('click',openPlaceSheet);
 document.getElementById('pl-close').addEventListener('click',()=>document.getElementById('place-sheet').style.display='none');
 document.getElementById('place-sheet').addEventListener('click',e=>{if(e.target.id==='place-sheet')e.target.style.display='none';});
