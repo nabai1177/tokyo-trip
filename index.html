@@ -195,11 +195,11 @@
   .shop-item .lt small{display:block;font-size:9px;color:var(--sub);font-weight:400;}
 
   /* ============ 云同步 ============ */
-  #sync-sheet,#plan-sheet{display:none;position:fixed;inset:0;z-index:1000;background:rgba(28,27,24,.4);backdrop-filter:blur(3px);}
-  #sync-sheet .box,#plan-sheet .box{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(460px,100%);
+  #sync-sheet,#plan-sheet,#place-sheet{display:none;position:fixed;inset:0;z-index:1000;background:rgba(28,27,24,.4);backdrop-filter:blur(3px);}
+  #sync-sheet .box,#plan-sheet .box,#place-sheet .box{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(460px,100%);
     background:var(--paper);border-radius:24px 24px 0 0;padding:22px 20px calc(env(safe-area-inset-bottom) + 24px);
     max-height:82vh;overflow-y:auto;animation:up .22s ease;}
-  @media(min-width:700px){ #sync-sheet .box,#plan-sheet .box{bottom:auto;top:50%;transform:translate(-50%,-50%);
+  @media(min-width:700px){ #sync-sheet .box,#plan-sheet .box,#place-sheet .box{bottom:auto;top:50%;transform:translate(-50%,-50%);
     border-radius:24px;animation:pop .18s ease;} }
   @keyframes up{from{transform:translate(-50%,40px);opacity:0;}to{transform:translate(-50%,0);opacity:1;}}
   .sheet-head{display:flex;align-items:center;margin-bottom:16px;}
@@ -222,6 +222,25 @@
   .btn.dang{background:var(--card);color:var(--verm);border:1px solid #f0d5cd;}
   .code-show{font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:700;text-align:center;
     letter-spacing:3px;background:#f1eee6;border-radius:14px;padding:14px;margin-bottom:10px;}
+
+  /* ============ 自定义地点 ============ */
+  #btn-addplace{position:absolute;z-index:600;top:14px;left:14px;border:1px solid var(--line);
+    background:rgba(255,253,249,.95);border-radius:99px;padding:8px 14px;font-size:12px;font-weight:600;
+    cursor:pointer;color:var(--ink);box-shadow:var(--shadow);backdrop-filter:blur(8px);}
+  #btn-addplace:hover{border-color:var(--ink);}
+  .btnrow input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+    font-size:14px;background:var(--paper);color:var(--ink);}
+  .btnrow input:focus{outline:none;border-color:var(--ink);}
+  #pl-results{margin-top:8px;}
+  .pl-res{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);
+    border-radius:10px;padding:9px 11px;font-size:12px;margin-bottom:6px;cursor:pointer;line-height:1.5;color:var(--ink);}
+  .pl-res:hover{border-color:var(--ink);}
+  .pl-hint{font-size:12px;color:var(--sub);padding:4px 2px;line-height:1.6;}
+  .pl-mine-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;}
+  .pl-mine-row .grow{flex:1;min-width:0;}
+  .pl-mine-row .x{border:none;background:transparent;cursor:pointer;font-size:14px;color:#c9c4b8;
+    padding:2px 6px;border-radius:6px;}
+  .pl-mine-row .x:hover{color:var(--verm);}
 
   /* ============ 当日迷你地图 ============ */
   .day-map{height:210px;border-radius:14px;margin:8px 2px 10px;border:1px solid var(--line);
@@ -369,7 +388,7 @@
 <body>
 
 <header>
-  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.0</span></div>
+  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.1</span></div>
   <span class="spacer"></span>
   <span class="chip" id="countdown"></span>
   <button class="iconbtn" id="btn-sync" title="云同步">☁️<span class="dot" id="sync-dot"></span></button>
@@ -404,6 +423,7 @@
     <!-- 地图 -->
     <section class="view on" id="view-map">
       <div id="map"></div><div id="legend"></div>
+      <button id="btn-addplace">📍＋ 地点</button>
       <div id="map-daybar"><div id="map-chips"></div><div id="map-daylist"></div></div>
     </section>
     <!-- 行李 -->
@@ -450,7 +470,6 @@
         <div class="mini-stats" id="exp-stats"></div>
       </div>
     </section>
-  </div>
   <!-- 迪士尼海洋攻略 -->
   <section class="view" id="view-dsn">
     <div class="panel">
@@ -465,6 +484,7 @@
       <div id="dsn-body"></div>
     </div>
   </section>
+  </div>
 </main>
 
 <!-- 云同步 -->
@@ -508,6 +528,38 @@
       <button id="plan-close">✕</button></div>
     <div id="plan-body"></div>
     <button class="btn sec" id="plan-save" style="width:100%;margin-top:2px;">💾 把当天当前安排存为「我的方案」</button>
+  </div>
+</div>
+
+<!-- 自定义地点 -->
+<div id="place-sheet">
+  <div class="box">
+    <div class="sheet-head"><h3>📍 添加地点</h3><span class="spacer"></span>
+      <button id="pl-close">✕</button></div>
+    <div class="sync-sec">
+      <h4>① 搜索坐标</h4>
+      <p>输入酒店/地点名称（建议带区域，如「新浦安 酒店」），点结果自动填坐标。搜不到也可在 Google 地图长按位置后手动填。</p>
+      <div class="btnrow">
+        <input type="text" id="pl-q" placeholder="如：オリエンタルホテル東京ベイ">
+        <button class="btn" id="pl-search" style="flex:none;padding:11px 16px;">搜索</button>
+      </div>
+      <div id="pl-results"></div>
+    </div>
+    <div class="sync-sec">
+      <h4>② 确认信息</h4>
+      <div class="btnrow" style="margin-bottom:10px;">
+        <input type="text" id="pl-name" placeholder="地点名称（行程和地图上显示）" style="flex:2;">
+      </div>
+      <div class="btnrow">
+        <input type="text" id="pl-lat" placeholder="纬度 lat（如 35.65603）" inputmode="decimal">
+        <input type="text" id="pl-lng" placeholder="经度 lng（如 139.90299）" inputmode="decimal">
+      </div>
+      <div class="btnrow" style="margin-top:10px;"><button class="btn" id="pl-save">✓ 保存地点</button></div>
+    </div>
+    <div class="sync-sec">
+      <h4>我的自定义地点</h4>
+      <div id="pl-mine"></div>
+    </div>
   </div>
 </div>
 
@@ -813,6 +865,8 @@ try{
 if(typeof S.updatedAt!=="number") S.updatedAt=0;
 if(!Array.isArray(S.myPlans)) S.myPlans=[];
 if(!Array.isArray(S.dsnPicks)) S.dsnPicks=[];
+if(typeof S.places!=="object"||!S.places) S.places={};
+Object.keys(S.places).forEach(k=>{ PLACES[k]=S.places[k]; });  // 自定义地点合并进地点库
 
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const colorOf=i=>DAY_HEX[i%DAY_HEX.length];
@@ -1615,6 +1669,57 @@ document.getElementById('sync-copy').addEventListener('click',async()=>{
   alert('已复制，发给同伴即可 ✓');
 });
 if(syncKey){ startPolling(); setSyncDot("on"); setSyncStatus("同步已开启"); }
+
+/* ================= 自定义地点 ================= */
+function openPlaceSheet(){ renderPlaceMine(); document.getElementById('place-sheet').style.display='block'; }
+function renderPlaceMine(){
+  const box=document.getElementById('pl-mine'); if(!box) return;
+  const keys=Object.keys(S.places);
+  box.innerHTML=keys.length
+    ?keys.map(k=>`<div class="pl-mine-row"><span class="grow">${esc(PLACES[k].name)}</span><span style="font-size:11px;color:var(--sub)">${PLACES[k].lat}, ${PLACES[k].lng}</span><button class="x" data-del="${k}" title="删除">🗑</button></div>`).join('')
+    :'<div class="pl-hint">还没有添加过。保存后可在行程里选用、也会出现在地图上。</div>';
+  box.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
+    const k=b.dataset.del;
+    if(!confirm('删除地点「'+(PLACES[k]?PLACES[k].name:k)+'」？引用它的活动会保留，但不再显示定位。')) return;
+    delete PLACES[k]; delete S.places[k]; save(); refreshMarkers(); renderPlaceMine();
+  }));
+}
+async function plSearch(){
+  const q=document.getElementById('pl-q').value.trim(); if(!q) return;
+  const box=document.getElementById('pl-results');
+  box.innerHTML='<div class="pl-hint">搜索中…</div>';
+  try{
+    const r=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&accept-language=zh&q='+encodeURIComponent(q+' 日本'));
+    const arr=await r.json();
+    if(!Array.isArray(arr)||!arr.length){ box.innerHTML='<div class="pl-hint">没找到，试试更完整的名称（加区域/日文原名）</div>'; return; }
+    box.innerHTML=arr.map(a=>`<button class="pl-res" data-lat="${a.lat}" data-lng="${a.lon}">${esc(a.display_name)}</button>`).join('');
+    box.querySelectorAll('.pl-res').forEach(b=>b.addEventListener('click',()=>{
+      document.getElementById('pl-lat').value=(+b.dataset.lat).toFixed(5);
+      document.getElementById('pl-lng').value=(+b.dataset.lng).toFixed(5);
+      if(!document.getElementById('pl-name').value.trim())
+        document.getElementById('pl-name').value=b.textContent.split(',')[0].trim();
+      box.innerHTML='<div class="pl-hint">已选定坐标 ✓ 补充/修改名称后保存</div>';
+    }));
+  }catch(e){ box.innerHTML='<div class="pl-hint">搜索失败（网络原因）。可在 Google 地图长按目标位置读坐标，手动填到下面。</div>'; }
+}
+function plSave(){
+  const name=document.getElementById('pl-name').value.trim();
+  const lat=parseFloat(document.getElementById('pl-lat').value), lng=parseFloat(document.getElementById('pl-lng').value);
+  if(!name){ alert('请填地点名称'); return; }
+  if(isNaN(lat)||isNaN(lng)||lat<-90||lat>90||lng<-180||lng>180){ alert('坐标不对，请先搜索或手动填写'); return; }
+  const key='c'+Date.now().toString(36);
+  const p={name, lat:+lat.toFixed(5), lng:+lng.toFixed(5)};
+  PLACES[key]=p; S.places[key]=p; save(); refreshMarkers(); renderMapDay();
+  document.getElementById('place-sheet').style.display='none';
+  document.getElementById('pl-name').value=''; document.getElementById('pl-lat').value=''; document.getElementById('pl-lng').value='';
+  alert('已添加「'+name+'」，现在可以在行程里选它了 ✓');
+}
+document.getElementById('btn-addplace').addEventListener('click',openPlaceSheet);
+document.getElementById('pl-close').addEventListener('click',()=>document.getElementById('place-sheet').style.display='none');
+document.getElementById('place-sheet').addEventListener('click',e=>{if(e.target.id==='place-sheet')e.target.style.display='none';});
+document.getElementById('pl-search').addEventListener('click',plSearch);
+document.getElementById('pl-q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();plSearch();}});
+document.getElementById('pl-save').addEventListener('click',plSave);
 
 /* ================= PWA ================= */
 (function(){
