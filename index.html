@@ -388,7 +388,7 @@
 <body>
 
 <header>
-  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.4</span></div>
+  <div class="brand"><b>東京之旅</b><span>TOKYO · 9.22 — 9.26 · v6.5</span></div>
   <span class="spacer"></span>
   <span class="chip" id="countdown"></span>
   <button class="iconbtn" id="btn-sync" title="云同步">☁️<span class="dot" id="sync-dot"></span></button>
@@ -592,6 +592,7 @@ const PLACES = {
   ginza:       {name:"银座",                lat:35.6717, lng:139.7650},
   ueno:        {name:"上野·阿美横町",       lat:35.7156, lng:139.7745},
   odaiba:      {name:"台场",                lat:35.6297, lng:139.7756},
+  uenoHotel:   {name:"上野御徒町·芬迪别墅酒店", lat:35.7110, lng:139.7756},
 };
 
 /* ================= 方案建议库（Plan B/C 备选） ================= */
@@ -630,51 +631,51 @@ const PLANS={
   ],
   2:[ // 9/24 浅草→秋叶原→新浦安
     {badge:"B",title:"筑地·银座版",desc:"吃货向：海鲜早餐开局，秋叶原压缩到 2 小时。",items:[
-      {time:"08:00",name:"退房，行李宅急便寄新浦安",note:"10 点前交件当天到",place:"shinjuku"},
+      {time:"08:00",name:"退房，行李寄存上野酒店",note:"入住前也能寄存",place:"uenoHotel"},
       {time:"09:00",name:"筑地场外市场早餐",note:"海胆饭/玉子烧，大江户线直达",place:"tsukiji"},
       {time:"11:30",name:"银座逛街",note:"优衣库旗舰/伊东屋/无印",place:"ginza"},
       {time:"14:00",name:"秋叶原",note:"银座→秋叶原 山手线 5 分钟",place:"akihabara"},
-      {time:"17:30",name:"→东京站→京叶线→新浦安入住",note:"",place:"shinurayasu"},
+      {time:"17:30",name:"秋叶原→上野入住（2站）",note:"",place:"uenoHotel"},
     ]},
     {badge:"C",title:"上野·阿美横町版",desc:"市井烟火气 + 性价比，适合想淘货的。",items:[
-      {time:"08:00",name:"退房，行李宅急便寄新浦安",note:"",place:"shinjuku"},
+      {time:"08:00",name:"退房，行李寄存上野酒店",note:"",place:"uenoHotel"},
       {time:"09:00",name:"上野公园·阿美横町",note:"山手线直达，一路吃过去",place:"ueno"},
       {time:"12:30",name:"午餐：拉面/鳗鱼饭",note:"",place:"ueno"},
       {time:"14:00",name:"秋叶原",note:"上野→秋叶原 山手线 4 分钟",place:"akihabara"},
-      {time:"17:30",name:"→新浦安入住",note:"",place:"shinurayasu"},
+      {time:"17:30",name:"秋叶原→上野入住（2站）",note:"",place:"uenoHotel"},
     ]},
   ],
   3:[ // 9/25 迪士尼海洋
     {badge:"B",title:"悠闲表演版",desc:"不冲队不刷项目，主打氛围：表演、巡游、美食拍照。",items:[
-      {time:"08:30",name:"出发",note:"避开最挤的一波",place:"shinurayasu"},
+      {time:"08:15",name:"上野出发→舞浜",note:"东京站换京叶线，约50分钟",place:"uenoHotel"},
       {time:"09:30",name:"入园",note:"先在 App 约表演入场券",place:"disneysea"},
       {time:"10:30",name:"地中海港湾 表演/拍照",note:"爆米花桶收藏党必逛",place:"disneysea"},
       {time:"12:00",name:"园区午餐",note:"",place:"disneysea"},
       {time:"下午",name:"表演/巡游二刷",note:"",place:"disneysea"},
-      {time:"20:30",name:"出园回酒店",note:"",place:"shinagawa"},
+      {time:"20:30",name:"出园→东京站→上野入住",note:"约50分钟",place:"uenoHotel"},
     ]},
     {badge:"C",title:"雨天预案",desc:"9 月多雨：室内项目优先，户外表演可能取消。",items:[
-      {time:"07:30",name:"出发",note:"带伞，穿防水鞋",place:"shinurayasu"},
+      {time:"07:15",name:"上野出发→舞浜",note:"带伞，穿防水鞋；约50分钟",place:"uenoHotel"},
       {time:"08:30",name:"入园直奔室内项目",note:"惊魂古塔/印第安纳琼斯/地心探险",place:"disneysea"},
       {time:"中午",name:"餐厅避雨 + 长休",note:"热门餐厅 App 提前排队",place:"disneysea"},
       {time:"下午",name:"商店街 + 室内剧场",note:"买周边的好时机（队伍短）",place:"disneysea"},
-      {time:"20:00",name:"出园→品川/滨松町入住",note:"",place:"shinagawa"},
+      {time:"20:00",name:"出园→东京站→上野入住",note:"约50分钟",place:"uenoHotel"},
     ]},
   ],
   4:[ // 9/26 涩谷→羽田
     {badge:"B",title:"台场版",desc:"动漫迷补充选项：独角兽高达立像 + teamLab，傍晚再回程。",items:[
-      {time:"09:30",name:"退房寄存行李",note:"",place:"shinagawa"},
-      {time:"10:30",name:"台场：独角兽高达·DiverCity",note:"海鸥线到台场",place:"odaiba"},
+      {time:"09:30",name:"退房寄存行李（上野）",note:"",place:"uenoHotel"},
+      {time:"10:30",name:"台场：独角兽高达·DiverCity",note:"上野→新桥→海鸥线",place:"odaiba"},
       {time:"12:30",name:"台场午餐",note:"",place:"odaiba"},
       {time:"14:30",name:"丰洲 teamLab Planets（可选）",note:"需提前订票；不去则继续逛台场",place:"odaiba"},
-      {time:"17:00",name:"回酒店取行李",note:"",place:"shinagawa"},
-      {time:"19:15",name:"京急线→羽田",note:"",place:"haneda"},
+      {time:"17:15",name:"回上野取行李",note:"",place:"uenoHotel"},
+      {time:"18:00",name:"上野→品川→京急线→羽田",note:"约60分钟",place:"haneda"},
       {time:"22:30",name:"✈️ 起飞回上海",note:"",place:null},
     ]},
     {badge:"C",title:"从容机场版",desc:"逛累了？直接把时间留给羽田：机场免税店其实很好逛。",items:[
-      {time:"10:00",name:"睡到自然醒，退房寄存",note:"",place:"shinagawa"},
-      {time:"11:30",name:"品川周边午餐",note:"",place:"shinagawa"},
-      {time:"13:30",name:"提前进羽田",note:"京急线直达",place:"haneda"},
+      {time:"10:00",name:"睡到自然醒，退房寄存（上野）",note:"",place:"uenoHotel"},
+      {time:"11:30",name:"上野周边午餐·阿美横町",note:"",place:"ueno"},
+      {time:"13:00",name:"上野→品川→羽田",note:"京急线，约60分钟",place:"haneda"},
       {time:"14:30",name:"机场免税店慢慢逛",note:"伴手礼最后补货，看飞机",place:"haneda"},
       {time:"22:30",name:"✈️ 起飞回上海",note:"",place:null},
     ]},
@@ -820,26 +821,26 @@ const DEFAULT_STATE = {
       {time:"下午", name:"提前前往代代木排队", note:"热门周边大概率售罄", place:"yoyogi", done:false},
       {time:"晚间", name:"演唱会②", note:"", place:null, done:false},
     ]},
-    {date:"9/24 周三", title:"浅草寺 → 秋叶原 → 新浦安", items:[
-      {time:"早上", name:"退房，行李宅急便寄新浦安", note:"10点前交件当天到", place:"shinjuku", done:false},
+    {date:"9/24 周三", title:"浅草寺 → 秋叶原 → 上野入住", items:[
+      {time:"早上", name:"退房，行李寄存上野酒店（前台代收）", note:"入住前也能寄存；或宅急便直送酒店", place:"uenoHotel", done:false},
       {time:"上午", name:"浅草寺·雷门·仲见世", note:"大江户线直通25分钟；天妇罗/鳗鱼饭", place:"asakusa", done:false},
       {time:"下午", name:"秋叶原", note:"筑波快线直达5分钟；animate/RADIO会馆", place:"akihabara", done:false},
-      {time:"傍晚", name:"→东京站→京叶线→新浦安入住", note:"为迪士尼养精蓄锐", place:"shinurayasu", done:false},
+      {time:"傍晚", name:"秋叶原→上野入住（2站）", note:"山手线/日比谷线；楼下就是阿美横町", place:"uenoHotel", done:false},
     ]},
-    {date:"9/25 周四", title:"迪士尼海洋一整天", items:[
-      {time:"07:00", name:"出发，开园前排队长", note:"App提前买票+抢DPA", place:"shinurayasu", done:false},
+    {date:"9/25 周四", title:"迪士尼海洋一整天（上野⇄舞滨）", items:[
+      {time:"07:15", name:"上野出发→东京站→京叶线→舞浜", note:"约50分钟；App提前买票+抢DPA", place:"uenoHotel", done:false},
       {time:"08:30", name:"入园：翱翔→地心探险→惊魂古塔", note:"按DPA时间安排", place:"disneysea", done:false},
       {time:"下午", name:"表演/巡游/园区闲逛", note:"", place:null, done:false},
-      {time:"20:00", name:"出园→品川/滨松町入住", note:"舞滨→东京→山手线", place:"shinagawa", done:false},
+      {time:"20:30", name:"出园→东京站→上野入住", note:"约50分钟", place:"uenoHotel", done:false},
     ]},
-    {date:"9/26 周五", title:"涩谷 → 羽田返程", items:[
-      {time:"上午", name:"自然醒，退房寄存行李", note:"回程顺路取", place:"shinagawa", done:false},
-      {time:"11:00", name:"品川→涩谷", note:"山手线12分钟", place:null, done:false},
+    {date:"9/26 周五", title:"涩谷 → 羽田返程（行李在上野）", items:[
+      {time:"上午", name:"自然醒，退房寄存行李（上野）", note:"", place:"uenoHotel", done:false},
+      {time:"11:00", name:"上野→涩谷", note:"银座线/山手线约30分钟", place:"shibuya", done:false},
       {time:"中午", name:"涩谷午餐+八公像/十字路口", note:"MIYASHITA PARK", place:"shibuya", done:false},
       {time:"14:00", name:"Shibuya Sky 展望台", note:"提前官网订票！", place:"shibuya", done:false},
       {time:"15:30", name:"涩谷购物", note:"PARCO：任天堂东京·宝可梦中心", place:null, done:false},
-      {time:"18:30", name:"回酒店取行李", note:"", place:null, done:false},
-      {time:"19:15", name:"京急线→羽田机场", note:"19:45前到，值机+免税店", place:"haneda", done:false},
+      {time:"17:15", name:"回上野取行李", note:"", place:"uenoHotel", done:false},
+      {time:"18:00", name:"上野→品川→京急线→羽田机场", note:"约60分钟，19:15前到，值机+免税店", place:"haneda", done:false},
       {time:"22:30", name:"✈️ 起飞回上海", note:"", place:null, done:false},
     ]},
   ],
@@ -868,6 +869,32 @@ if(!Array.isArray(S.myPlans)) S.myPlans=[];
 if(!Array.isArray(S.dsnPicks)) S.dsnPicks=[];
 if(typeof S.places!=="object"||!S.places) S.places={};
 Object.keys(S.places).forEach(k=>{ PLACES[k]=S.places[k]; });  // 自定义地点合并进地点库
+
+/* 迁移：24-26日酒店定为上野御徒町芬迪别墅（2026-09），旧日程自动升级 */
+if(S.v65hotel!==true){
+  const _f=d=>S.days.find(x=>(x.date||'').startsWith(d));
+  const _d24=_f('9/24')||S.days[2], _d25=_f('9/25')||S.days[3], _d26=_f('9/26')||S.days[4];
+  if(_d24){ _d24.title="浅草寺 → 秋叶原 → 上野入住"; _d24.items=[
+    {time:"早上",name:"退房，行李寄存上野酒店（前台代收）",note:"入住前也能寄存；或宅急便直送酒店",place:"uenoHotel",done:false},
+    {time:"上午",name:"浅草寺·雷门·仲见世",note:"大江户线直通25分钟；天妇罗/鳗鱼饭",place:"asakusa",done:false},
+    {time:"下午",name:"秋叶原",note:"筑波快线直达5分钟；animate/RADIO会馆",place:"akihabara",done:false},
+    {time:"傍晚",name:"秋叶原→上野入住（2站）",note:"山手线/日比谷线；楼下就是阿美横町",place:"uenoHotel",done:false}]; }
+  if(_d25){ _d25.title="迪士尼海洋一整天（上野⇄舞滨）"; _d25.items=[
+    {time:"07:15",name:"上野出发→东京站→京叶线→舞浜",note:"约50分钟；App提前买票+抢DPA",place:"uenoHotel",done:false},
+    {time:"08:30",name:"入园：翱翔→地心探险→惊魂古塔",note:"按DPA时间安排",place:"disneysea",done:false},
+    {time:"下午",name:"表演/巡游/园区闲逛",note:"",place:null,done:false},
+    {time:"20:30",name:"出园→东京站→上野入住",note:"约50分钟",place:"uenoHotel",done:false}]; }
+  if(_d26){ _d26.title="涩谷 → 羽田返程（行李在上野）"; _d26.items=[
+    {time:"上午",name:"自然醒，退房寄存行李（上野）",note:"",place:"uenoHotel",done:false},
+    {time:"11:00",name:"上野→涩谷",note:"银座线/山手线约30分钟",place:"shibuya",done:false},
+    {time:"中午",name:"涩谷午餐+八公像/十字路口",note:"MIYASHITA PARK",place:"shibuya",done:false},
+    {time:"14:00",name:"Shibuya Sky 展望台",note:"提前官网订票！",place:"shibuya",done:false},
+    {time:"15:30",name:"涩谷购物",note:"PARCO：任天堂东京·宝可梦中心",place:null,done:false},
+    {time:"17:15",name:"回上野取行李",note:"",place:"uenoHotel",done:false},
+    {time:"18:00",name:"上野→品川→京急线→羽田机场",note:"约60分钟，19:15前到，值机+免税店",place:"haneda",done:false},
+    {time:"22:30",name:"✈️ 起飞回上海",note:"",place:null,done:false}]; }
+  S.v65hotel=true; save();
+}
 
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const colorOf=i=>DAY_HEX[i%DAY_HEX.length];
